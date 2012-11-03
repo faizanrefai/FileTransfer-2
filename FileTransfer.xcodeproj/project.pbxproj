@@ -494,13 +494,6 @@
 		84DA14D5163CDDA500347BF9 = {
 			isa = PBXGroup;
 			children = (
-				8499639F164027BB005F090F /* CFNetwork.framework */,
-				8499639D164027A0005F090F /* libresolv.dylib */,
-				8499639B16402792005F090F /* Security.framework */,
-				84996399164025A3005F090F /* libxml2.2.7.3.dylib */,
-				84DA19A7163CEB4E00347BF9 /* CoreData.framework */,
-				84DA19A5163CEB4400347BF9 /* SystemConfiguration.framework */,
-				84DA19A3163CEB3B00347BF9 /* CoreLocation.framework */,
 				84DA14EA163CDDA500347BF9 /* FileTransfer */,
 				84DA14E3163CDDA500347BF9 /* Frameworks */,
 				84DA14E1163CDDA500347BF9 /* Products */,
@@ -518,6 +511,13 @@
 		84DA14E3163CDDA500347BF9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8499639F164027BB005F090F /* CFNetwork.framework */,
+				8499639D164027A0005F090F /* libresolv.dylib */,
+				8499639B16402792005F090F /* Security.framework */,
+				84996399164025A3005F090F /* libxml2.2.7.3.dylib */,
+				84DA19A7163CEB4E00347BF9 /* CoreData.framework */,
+				84DA19A5163CEB4400347BF9 /* SystemConfiguration.framework */,
+				84DA19A3163CEB3B00347BF9 /* CoreLocation.framework */,
 				84DA14E4163CDDA500347BF9 /* UIKit.framework */,
 				84DA14E6163CDDA500347BF9 /* Foundation.framework */,
 				84DA14E8163CDDA500347BF9 /* CoreGraphics.framework */,

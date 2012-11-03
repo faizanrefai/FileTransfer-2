@@ -9,6 +9,7 @@
 #import "FriendListViewController.h"
 #import "XMPPHandler.h"
 #import "OneToOneChatViewController.h"
+#import "AppConstants.h"
 
 @interface FriendListViewController ()
 
@@ -67,7 +68,12 @@
 		
 		NSArray *sortDescriptors = [NSArray arrayWithObjects:sd1, sd2, nil];
 		
+        
 		NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        
+        NSString *streamBarJid = [[NSUserDefaults standardUserDefaults] objectForKey:kStreamBareJIDString];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"streamBareJidStr=%@", streamBarJid];
+        [fetchRequest setPredicate:predicate];
 		[fetchRequest setEntity:entity];
 		[fetchRequest setSortDescriptors:sortDescriptors];
 		[fetchRequest setFetchBatchSize:10];

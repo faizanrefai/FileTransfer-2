@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+extern NSString * const kStreamBareJIDString;
+
 #pragma mark - Notification Message
 extern NSString * const receivedOneToOneMessage;
 extern NSString * const receivedPresenceStatus;

@@ -8,6 +8,8 @@
 
 #import "AppConstants.h"
 
+NSString * const kStreamBareJIDString = @"MyBareJIDString";
+
 #pragma mark - Notification Message
 NSString * const receivedOneToOneMessage = @"ReceivedOneToOneMessage";
 NSString * const receivedPresenceStatus = @"ReceivedPresenceStatus";

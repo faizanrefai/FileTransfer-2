@@ -441,6 +441,8 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 {
 	DDLogVerbose(@"%@: %@", THIS_FILE, THIS_METHOD);
 	[self goOnline];
+    NSString *bareJIDString = [[sender myJID] bare];
+    [[NSUserDefaults standardUserDefaults] setObject:bareJIDString forKey:kStreamBareJIDString];
 }
 
 - (void)xmppStream:(XMPPStream *)sender didNotAuthenticate:(NSXMLElement *)error
@@ -477,7 +479,7 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 
 - (void)xmppStream:(XMPPStream *)sender didReceivePresence:(XMPPPresence *)presence
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:receivedPresenceStatus object:nil];
+    //[[NSNotificationCenter defaultCenter] postNotificationName:receivedPresenceStatus object:nil];
 	DDLogVerbose(@"%@: %@ - %@", THIS_FILE, THIS_METHOD, [presence fromStr]);
 }
 
