@@ -9,5 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface ViewController : UIViewController
+@property (nonatomic) IBOutlet UITextField *usernameTextField;
+@property (nonatomic) IBOutlet UITextField *passwordTextField;
+@property (nonatomic) IBOutlet UIButton *loginButton;
 
+- (IBAction)loginAction:(id)sender;
 @end
