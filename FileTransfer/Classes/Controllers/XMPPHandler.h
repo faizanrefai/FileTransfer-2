@@ -2,6 +2,8 @@
 #import <CoreData/CoreData.h>
 
 #import "XMPPFramework.h"
+#import "XMPPDiscoRoom.h"
+#import "XMPPTransports.h"
 
 
 @interface XMPPHandler : NSObject <XMPPRosterDelegate>
@@ -15,7 +17,13 @@
 	XMPPvCardAvatarModule *xmppvCardAvatarModule;
 	XMPPCapabilities *xmppCapabilities;
 	XMPPCapabilitiesCoreDataStorage *xmppCapabilitiesStorage;
-	
+    XMPPMUC *xmppMUC;
+    XMPPRoom *xmppRoom;
+	XMPPDiscoRoom *xmppDiscoRoom;
+    XMPPRoomCoreDataStorage *xmppRoomCoreDataStore;
+    
+    XMPPTransports *xmppTransport;
+    
 	NSString *password;
 	
 	BOOL allowSelfSignedCertificates;
@@ -32,13 +40,19 @@
 @property (nonatomic, strong, readonly) XMPPvCardAvatarModule *xmppvCardAvatarModule;
 @property (nonatomic, strong, readonly) XMPPCapabilities *xmppCapabilities;
 @property (nonatomic, strong, readonly) XMPPCapabilitiesCoreDataStorage *xmppCapabilitiesStorage;
-
+@property (nonatomic, strong, readonly) XMPPMUC *xmppMUC;
+@property (nonatomic, strong) XMPPDiscoRoom *xmppDiscoRoom;
+@property (nonatomic, strong) XMPPRoomCoreDataStorage *xmppRoomCoreDataStore;
+@property (nonatomic, strong) XMPPTransports *xmppTransport;
 
 - (NSManagedObjectContext *)managedObjectContext_roster;
 - (NSManagedObjectContext *)managedObjectContext_capabilities;
 
+- (NSManagedObjectContext *)managedObjectContext_room;
+
 - (BOOL)connect;
 - (BOOL)loginWithUsername:(NSString *)username password:(NSString *)password;
+- (void)logout;
 - (void)sendMessage:(NSString *)text to:(NSString *)jid;
 - (void)disconnect;
 

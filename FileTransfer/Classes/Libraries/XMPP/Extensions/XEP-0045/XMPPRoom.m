@@ -1101,7 +1101,9 @@ enum XMPPRoomState
 	
 	if (isChatMessage)
 	{
-		[xmppRoomStorage handleOutgoingMessage:message room:self];	
+        //Hoanhx - Not insert message send, muc will send back message we have sent out.
+		//[xmppRoomStorage handleOutgoingMessage:message room:self];
+        //End hoanhx
 	}
 }
 

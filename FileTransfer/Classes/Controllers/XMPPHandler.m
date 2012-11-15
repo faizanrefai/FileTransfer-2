@@ -6,12 +6,13 @@
 #import "XMPPRosterCoreDataStorage.h"
 #import "XMPPvCardAvatarModule.h"
 #import "XMPPvCardCoreDataStorage.h"
-
+#import "XMPPMUC.h"
 #import "XMPPMessageOneToOneRepository.h"
 #import "DDLog.h"
 #import "DDTTYLogger.h"
 
 #import "AppConstants.h"
+#import "XMPPDiscoRoom.h"
 
 #import <CFNetwork/CFNetwork.h>
 
@@ -22,8 +23,7 @@ static const int ddLogLevel = LOG_LEVEL_VERBOSE;
 static const int ddLogLevel = LOG_LEVEL_INFO;
 #endif
 
-NSString *const kXMPPmyJID = @"kXMPPmyJID";
-NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
+
 
 @interface XMPPHandler()
 
@@ -49,6 +49,10 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 @synthesize xmppvCardAvatarModule;
 @synthesize xmppCapabilities;
 @synthesize xmppCapabilitiesStorage;
+@synthesize xmppMUC;
+@synthesize xmppDiscoRoom;
+@synthesize xmppRoomCoreDataStore;
+@synthesize xmppTransport;
 
 - (id)init {
     self = [super init];
@@ -99,6 +103,9 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 	return [xmppCapabilitiesStorage mainThreadManagedObjectContext];
 }
 
+- (NSManagedObjectContext *)managedObjectContext_room {
+    return [xmppRoomCoreDataStore mainThreadManagedObjectContext];
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark Private
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -216,9 +223,25 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 	// If you don't specify a hostPort, then the default (5222) will be used.
 	
     //	[xmppStream setHostName:@"talk.google.com"];
-    //	[xmppStream setHostPort:5222];	
-	
+    //	[xmppStream setHostPort:5222];
     
+    //XMPPRoomCoreDataStorage
+    xmppRoomCoreDataStore = [[XMPPRoomCoreDataStorage alloc] init];
+    
+    //Add disco MUC
+    xmppDiscoRoom = [XMPPDiscoRoom sharedInstance];
+    [xmppDiscoRoom activate:xmppStream];
+    [xmppDiscoRoom addDelegate:self delegateQueue:dispatch_get_main_queue()];
+    
+    //Add XMPPTransport to register with im gateway
+    xmppTransport = [[XMPPTransports alloc] initWithStream:xmppStream];
+
+    
+    //Add Muc module
+    xmppMUC = [[XMPPMUC alloc] init];
+    [xmppMUC activate:xmppStream];
+    //[xmppMUC addDelegate:self delegateQueue:dispatch_get_main_queue()];
+	
 	// You may need to alter these settings depending on the server you're connecting to
 	allowSelfSignedCertificates = NO;
 	allowSSLHostNameMismatch = NO;
@@ -264,6 +287,8 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 	XMPPPresence *presence = [XMPPPresence presence]; // type="available" is implicit
 	
 	[[self xmppStream] sendElement:presence];
+    
+    [xmppTransport registerLegacyService:@"yahoo" username:@"hauc_a" password:@"12345678@X"];
 }
 
 - (void)goOffline
@@ -298,6 +323,7 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 	}
     
 	[xmppStream setMyJID:[XMPPJID jidWithString:myJID]];
+    
 	password = myPassword;
     
 	NSError *error = nil;
@@ -336,6 +362,10 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 	}
     
 	return YES;
+}
+
+- (void)logout {
+    [self disconnect];
 }
 
 - (void)sendMessage:(NSString *)text to:(NSString *)jid {
@@ -443,11 +473,13 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 	[self goOnline];
     NSString *bareJIDString = [[sender myJID] bare];
     [[NSUserDefaults standardUserDefaults] setObject:bareJIDString forKey:kStreamBareJIDString];
+    [[NSNotificationCenter defaultCenter] postNotificationName:didXMPPAuthenticated object:nil];
 }
 
 - (void)xmppStream:(XMPPStream *)sender didNotAuthenticate:(NSXMLElement *)error
 {
 	DDLogVerbose(@"%@: %@", THIS_FILE, THIS_METHOD);
+    [[NSNotificationCenter defaultCenter] postNotificationName:didXMPPAuthenticateFail object:nil];
 }
 
 - (BOOL)xmppStream:(XMPPStream *)sender didReceiveIQ:(XMPPIQ *)iq
@@ -461,6 +493,8 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
     if ([message isChatMessageWithBody]) {
         XMPPMessageOneToOneRepository *messageRepository = [XMPPMessageOneToOneRepository instance];
         [messageRepository handleOutgoingMessage:message stream:sender];
+        //Post notification
+        [[NSNotificationCenter defaultCenter] postNotificationName:receivedOneToOneMessage object:nil];
     }
 }
 
@@ -474,12 +508,14 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 	{
         XMPPMessageOneToOneRepository *messageRepository = [XMPPMessageOneToOneRepository instance];
         [messageRepository handleIncomingMessage:message stream:sender];
+        //Post notification
+        [[NSNotificationCenter defaultCenter] postNotificationName:receivedOneToOneMessage object:nil];
 	}
 }
 
 - (void)xmppStream:(XMPPStream *)sender didReceivePresence:(XMPPPresence *)presence
 {
-    //[[NSNotificationCenter defaultCenter] postNotificationName:receivedPresenceStatus object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:receivedPresenceStatus object:nil];
 	DDLogVerbose(@"%@: %@ - %@", THIS_FILE, THIS_METHOD, [presence fromStr]);
 }
 
@@ -495,6 +531,7 @@ NSString *const kXMPPmyPassword = @"kXMPPmyPassword";
 	if (!isXmppConnected)
 	{
 		DDLogError(@"Unable to connect to server. Check xmppStream.hostName");
+        [[NSNotificationCenter defaultCenter] postNotificationName:xmppDidDisconnect object:nil];
 	}
 }
 

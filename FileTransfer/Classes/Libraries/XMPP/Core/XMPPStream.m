@@ -2368,7 +2368,6 @@ enum XMPPStreamConfig
 	{
 		// None of the delegates implement the method.
 		// Use a shortcut.
-		
 		[self continueReceiveMessage:message];
 	}
 	else

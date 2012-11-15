@@ -1,30 +1,28 @@
 //
-//  FriendList.m
+//  UsersViewBaseController.m
 //  FileTransfer
 //
-//  Created by Admin on 10/31/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Created by Admin on 11/13/12.
+//
 //
 
-#import "FriendListViewController.h"
-#import "XMPPHandler.h"
-#import "OneToOneChatViewController.h"
+#import "UsersViewBaseController.h"
 #import "AppConstants.h"
-#import "RoomListViewController.h"
-#import "UIAlertView+BlockExtensions.h"
-#import "RoomChatViewController.h"
-#import "RoomChatRepository.h"
+#import "XMPPUserCoreDataStorageObject.h"
+#import "XMPPHandler.h"
+#import "XMPPUtil.h"
 
-@interface FriendListViewController ()
-- (void)logout;
-- (void)showRooms;
+@interface UsersViewBaseController ()
+
 @end
 
-@implementation FriendListViewController
+@implementation UsersViewBaseController
 
-- (id)initWithStyle:(UITableViewStyle)style
+@synthesize tableView;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    self = [super initWithStyle:style];
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
     }
@@ -34,38 +32,14 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = @"Users";
-    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"Logout" style:UIBarButtonItemStyleBordered target:self action:@selector(logout)];
-    [[self navigationItem] setLeftBarButtonItem:leftItem];
-    
-    //Add roomlist button
-    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"Rooms" style:UIBarButtonItemStyleBordered target:self action:@selector(showRooms)];
-    [[self navigationItem] setRightBarButtonItem:rightItem];
-    
-    //Handle invite muc
-    XMPPMUC *xmppMUC = [[XMPPHandler sharedInstance] xmppMUC];
-    [xmppMUC addDelegate:self delegateQueue:dispatch_get_main_queue()];
-    
-    
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+	// Do any additional setup after loading the view.
 }
 
-- (void)viewDidUnload
+- (void)didReceiveMemoryWarning
 {
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
 }
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark NSFetchedResultsController
@@ -130,7 +104,7 @@
 	if (user.photo != nil)
 	{
 		cell.imageView.image = user.photo;
-	} 
+	}
 	else
 	{
 		NSData *photoData = [[[XMPPHandler sharedInstance] xmppvCardAvatarModule] photoDataForJID:user.jid];
@@ -188,7 +162,7 @@
 {
 	static NSString *CellIdentifier = @"FriendListCell";
 	
-	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+	UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if (cell == nil)
 	{
 		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
@@ -206,72 +180,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     //Get the selected object in order to fill out the detail view
-    XMPPUserCoreDataStorageObject *user = [[self fetchedResultsController] objectAtIndexPath:indexPath];
-    
-    OneToOneChatViewController *oneToOneChatViewController = [[OneToOneChatViewController alloc] init];
-    oneToOneChatViewController.user = user;
-    [[self navigationController] pushViewController:oneToOneChatViewController animated:YES];
-    
-}
-
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    NSLog(@"");
-    NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
-    //Get the selected object in order to fill out the detail view
-    XMPPUserCoreDataStorageObject *user = [[self fetchedResultsController] objectAtIndexPath:indexPath];
-    
-    OneToOneChatViewController *dest = [segue destinationViewController];
-    dest.user = user;
-}
-
-#pragma mark - XMPPMuc delegate
-- (void)xmppMUC:(XMPPMUC *)sender didReceiveRoomInvitation:(XMPPMessage *)message {
-    NSLog(@"receive invitaion: %@", message);
-    NSXMLElement * x = [message elementForName:@"x" xmlns:XMPPMUCUserNamespace];
-	NSXMLElement * invite  = [x elementForName:@"invite"];
-    
-    //From jid
-    NSString *from = [invite attributeStringValueForName:@"from"];
-    XMPPJID *fromJid = [XMPPJID jidWithString:from];
-    
-    
-    //Room jid
-    NSString *roomJidString = [message attributeStringValueForName:@"from"];
-    XMPPJID *roomJid = [XMPPJID jidWithString:roomJidString];
-    
-    //Invite reason
-    NSXMLElement *reason = [invite elementForName:@"reason"];
-    NSString *inviteReason = [reason stringValue];
-    inviteReason = [inviteReason stringByAppendingFormat:@"(%@)", roomJid.user];
-    
-    XMPPRoom *room = [[RoomChatRepository sharedInstance] roomWithJID:roomJid];
-    if (!room.isJoined) {
-        @autoreleasepool {
-            [[[UIAlertView alloc] initWithTitle:fromJid.user message:inviteReason completionBlock:^(NSUInteger buttonIndex, UIAlertView *alertView) {
-                if (buttonIndex == 1) {
-                    
-                    RoomChatViewController *roomChatViewController = [[RoomChatViewController alloc] initWithRoomJID:roomJid];
-                    [self.navigationController pushViewController:roomChatViewController animated:YES];
-                }
-                
-            } cancelButtonTitle:@"Decline" otherButtonTitles:@"Accept", nil] show];
-        }
-    }    
-}
-
-- (void)xmppMUC:(XMPPMUC *)sender didReceiveRoomInvitationDecline:(XMPPMessage *)message {
-    
 }
 
 
-#pragma mark - Private methods
-- (void)logout {
-    [[XMPPHandler sharedInstance] logout];
-    [self dismissModalViewControllerAnimated:YES];
-}
-
-- (void)showRooms {
-    RoomListViewController *roomListViewController = [[RoomListViewController alloc] init];
-    [self.navigationController pushViewController:roomListViewController animated:YES];
-}
 @end

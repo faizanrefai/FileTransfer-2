@@ -111,7 +111,7 @@
     CGFloat height = MAX(size.height + 2*MARGIN, 35);
     UIImage *chatImage;
     
-    CGRect avartaFrame;
+    //CGRect avartaFrame;
     
     if ([[self.chatMessage fromMe] boolValue]) {
         CGFloat x = 0;

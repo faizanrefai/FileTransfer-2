@@ -11,10 +11,11 @@
 #import "XMPPMessageOneToOneChat.h"
 #import "OneToOneChatViewCell.h"
 #import "XMPPHandler.h"
+#import "AppConstants.h"
 
 @interface OneToOneChatViewController ()
-- (void)keyboardDidShow;
-- (void)keyboardDidHide;
+- (void)keyboardDidShow:(NSNotification *)notification;
+- (void)keyboardDidHide:(NSNotification *)notification;
 @end
 
 @implementation OneToOneChatViewController
@@ -122,6 +123,10 @@
 		[fetchRequest setEntity:entity];
 		[fetchRequest setSortDescriptors:sortDescriptors];
 		[fetchRequest setFetchBatchSize:10];
+        
+        NSString *streamBarJid = [[NSUserDefaults standardUserDefaults] objectForKey:kStreamBareJIDString];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"jidStr=%@ AND streamBareJidStr=%@ ", user_.jidStr, streamBarJid];
+        [fetchRequest setPredicate:predicate];
 		
 		fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
 		                                                               managedObjectContext:moc

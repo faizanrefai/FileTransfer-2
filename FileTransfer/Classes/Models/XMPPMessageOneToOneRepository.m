@@ -81,14 +81,17 @@
     
     XMPPMessageOneToOneChat *messageOneToOne = [self createOneToOneMessage];
     XMPPJID *jid = [message from];
+    if (isOutgoing) {
+        jid = [message to];
+    }
     //messageOneToOne.message = message;
     //messageOneToOne.jid = jid;
-    messageOneToOne.nickname = [jid resource];
+    messageOneToOne.jidStr = [jid bare];
+    messageOneToOne.nickname = [jid user];
     messageOneToOne.body = [[message elementForName:@"body"] stringValue];
     messageOneToOne.fromMe = [NSNumber numberWithBool:isOutgoing];
     messageOneToOne.localTimestamp = localTimestamp;
     messageOneToOne.remoteTimestamp = remoteTimestamp;
-    //Post notification
-    [[NSNotificationCenter defaultCenter] postNotificationName:receivedOneToOneMessage object:nil];
+    messageOneToOne.streamBareJidStr = [[stream myJID] bare];
 }
 @end

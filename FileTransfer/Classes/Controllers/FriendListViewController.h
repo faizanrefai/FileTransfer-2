@@ -12,6 +12,9 @@
 
 @interface FriendListViewController : UITableViewController <NSFetchedResultsControllerDelegate> {
     NSFetchedResultsController *fetchedResultsController;
+    
+    UIAlertView *inviteAlertView;
+    UIAlertView *declineAlertView;
 }
 
 @end
