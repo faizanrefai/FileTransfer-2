@@ -14,10 +14,16 @@
 #import "UIAlertView+BlockExtensions.h"
 #import "RoomChatViewController.h"
 #import "RoomChatRepository.h"
+#import "NSString+Contain.h"
+#import "XMPPUtil.h"
+#import "DirectoryHelper.h"
 
 @interface FriendListViewController ()
-- (void)logout;
+- (void)showAccounts;
 - (void)showRooms;
+- (void)showActionSheet;
+- (void)showFileReceived;
+- (NSArray *)urlsAtSavedDirectory;
 @end
 
 @implementation FriendListViewController
@@ -35,12 +41,15 @@
 {
     [super viewDidLoad];
     self.title = @"Users";
-    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"Logout" style:UIBarButtonItemStyleBordered target:self action:@selector(logout)];
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStyleBordered target:self action:@selector(showActionSheet)];
     [[self navigationItem] setLeftBarButtonItem:leftItem];
     
     //Add roomlist button
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"Rooms" style:UIBarButtonItemStyleBordered target:self action:@selector(showRooms)];
     [[self navigationItem] setRightBarButtonItem:rightItem];
+    
+    //Actionsheet
+    actionSheet = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Account", @"Files Received", nil];
     
     //Handle invite muc
     XMPPMUC *xmppMUC = [[XMPPHandler sharedInstance] xmppMUC];
@@ -66,6 +75,10 @@
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
+
+- (void)dealloc {
+    [fetchedResultsController setDelegate:nil];
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark NSFetchedResultsController
@@ -140,6 +153,19 @@
 		else
 			cell.imageView.image = [UIImage imageNamed:@"defaultPerson"];
 	}
+    
+    //Check accout type
+    NSString *accountImageName = @"xmpp-sign-icon";
+    if ([user.jidStr containsString:[XMPPUtil yahooFullServiceName]]) {
+        accountImageName = @"yahoo-sign-icon";
+    }
+    else if ([user.jidStr containsString:[XMPPUtil msnFullServiceName]]) {
+        accountImageName = @"msn-sign-icon";
+    }
+    UIImage *acountTypeImage = [UIImage imageNamed:accountImageName];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:acountTypeImage];
+    cell.accessoryView = imageView;
+    
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,11 +221,19 @@
                                       reuseIdentifier:CellIdentifier];
 	}
 	
-	XMPPUserCoreDataStorageObject *user = [[self fetchedResultsController] objectAtIndexPath:indexPath];
 	
-	cell.textLabel.text = user.displayName;
-	[self configurePhotoForCell:cell user:user];
-	
+    @try {
+        XMPPUserCoreDataStorageObject *user = [[self fetchedResultsController] objectAtIndexPath:indexPath];
+        
+        cell.textLabel.text = user.displayName;
+        [self configurePhotoForCell:cell user:user];
+    }
+    @catch (NSException *exception) {
+        
+    }
+    @finally {
+        
+    }
 	return cell;
 }
 
@@ -264,14 +298,52 @@
 }
 
 
-#pragma mark - Private methods
-- (void)logout {
-    [[XMPPHandler sharedInstance] logout];
+#pragma mark - AccoutView delegate
+- (void)didXMPPLogOut {
     [self dismissModalViewControllerAnimated:YES];
+}
+
+#pragma mark - UIActionsheet delegate
+#pragma mark - UIActionSheet delegate
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    NSLog(@"index: %d", buttonIndex);
+    if (buttonIndex == 0) {
+        [self showAccounts];
+    }
+    //Show memeber
+    else if (buttonIndex == 1){
+        [self showFileReceived];
+    }
+}
+
+
+#pragma mark - Private methods
+- (void)showAccounts {
+    AccountsViewController *accountViewController = [[AccountsViewController alloc] init];
+    accountViewController.delegate = self;
+    [self.navigationController pushViewController:accountViewController animated:YES];
 }
 
 - (void)showRooms {
     RoomListViewController *roomListViewController = [[RoomListViewController alloc] init];
     [self.navigationController pushViewController:roomListViewController animated:YES];
+}
+
+- (void)showActionSheet {
+    [actionSheet showFromBarButtonItem:self.navigationItem.rightBarButtonItem animated:YES];
+    
+}
+- (void)showFileReceived {
+    ListFilesViewController *listFilesViewController = [[ListFilesViewController alloc] init];
+    listFilesViewController.urlArray = [self urlsAtSavedDirectory];
+    
+    UINavigationController *navigationCotroller = [[UINavigationController alloc] initWithRootViewController:listFilesViewController];
+    [self presentModalViewController:navigationCotroller animated:YES];
+}
+
+- (NSArray *)urlsAtSavedDirectory {
+    NSString *savedFilePath = [DirectoryHelper savedFilesDirectory];
+    NSArray *urls = [DirectoryHelper filesAtPath:savedFilePath];
+    return urls;
 }
 @end

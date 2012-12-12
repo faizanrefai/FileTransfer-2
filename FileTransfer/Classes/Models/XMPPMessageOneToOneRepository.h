@@ -10,6 +10,7 @@
 #import "XMPPMessageOneToOneChat.h"
 #import "XMPPMessage.h"
 #import "XMPPStream.h"
+#import "FileTransferMessage.h"
 
 
 @interface XMPPMessageOneToOneRepository : BaseRepository

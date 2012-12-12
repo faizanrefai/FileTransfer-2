@@ -12,6 +12,7 @@
 #import "RegisterViewController.h"
 #import "AppConstants.h"
 #import "MBProgressHUD.h"
+#import "DeviceUtil.h"
 
 @interface ViewController ()
 - (void)didAuthenticated:(NSNotification *)notification;
@@ -38,6 +39,12 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(xmppDidDisconect:) name:xmppDidDisconnect object:nil];
 
 
+    if ([DeviceUtil isSimulator]) {
+        usernameTextField.text = @"hauc1";
+    }
+    else {
+        usernameTextField.text = @"hauc2";
+    }
 }
 
 - (void)viewDidUnload

@@ -13,9 +13,12 @@
 #import "XMPPJID.h"
 #import "RoomChatRepository.h"
 #import "XMPPUtil.h"
+#import "XMPPRoomCoreDataStorage.h"
 
 @interface NewRoomViewController ()
-- (void)createRoom:(NSString *)roomName;
+- (void)joinRoom:(NSString *)roomName;
+- (BOOL)ownerRoom:(XMPPRoom *)room;
+- (void)didGetRoomList:(NSNotification *)notification;
 @end
 
 @implementation NewRoomViewController
@@ -35,8 +38,12 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didGetRoomList:) name:xmppDidGetRoomList object:nil];
 	// Do any additional setup after loading the view.
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [[XMPPDiscoRoom sharedInstance] discoRoom];
 }
 
 - (void)didReceiveMemoryWarning
@@ -50,7 +57,7 @@
 }
 
 #pragma mark - IBAction methods
-- (IBAction)createRoomAction:(id)sender {
+- (IBAction)joinRoomAction:(id)sender {
     NSString *roomName = roomNameTextField.text;
     if (roomName.length == 0) {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Please enter room name!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
@@ -58,7 +65,7 @@
     }
     else {
 //        
-        [self createRoom:roomName];
+        [self joinRoom:roomName];
     }
 }
 
@@ -66,11 +73,54 @@
     [self dismissModalViewControllerAnimated:YES];
 }
 
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    
+    // Return the number of sections.
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    // Return the number of rows in the section.
+    NSInteger row = roomList.count;
+    return row;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *CellIdentifier = @"RoomListCell";
+    UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    }
+    
+    XMPPJID *jid = [roomList objectAtIndex:indexPath.row];
+    cell.textLabel.text = jid.user;
+    
+    //NSLog(@"user: %@", jid.user);
+    return cell;
+}
+
+
+
+#pragma mark - Table view delegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // Navigation logic may go here. Create and push another view controller.
+    XMPPJID *jid = [roomList objectAtIndex:indexPath.row];
+    roomNameTextField.text = jid.user;
+}
+
 #pragma mark - XMPPRoomDelegate
 - (void)xmppRoom:(XMPPRoom *)sender didConfigure:(XMPPIQ *)iqResult {
-    [[RoomChatRepository sharedInstance] addRoom:room];
-    if ([delegate respondsToSelector:@selector(roomCreated:)]) {
-        [delegate roomCreated:room.roomJID];
+    //[[RoomChatRepository sharedInstance] addRoom:room];
+    if ([delegate respondsToSelector:@selector(didJointRoom:)]) {
+        [delegate didJointRoom:room];
     }
 }
 
@@ -80,7 +130,15 @@
 }
 
 - (void)xmppRoomDidJoin:(XMPPRoom *)sender {
-    [room fetchConfigurationForm];
+    [[RoomChatRepository sharedInstance] addRoom:sender];
+    if ([self ownerRoom:sender]) {
+        [room fetchConfigurationForm];
+    }
+    else {
+        if ([delegate respondsToSelector:@selector(didJointRoom:)]) {
+            [delegate didJointRoom:room];
+        }
+    }
 }
 
 - (void)xmppRoom:(XMPPRoom *)sender didFetchConfigurationForm:(NSXMLElement *)configForm {
@@ -88,15 +146,43 @@
 }
 
 #pragma mark - Private methods
-- (void)createRoom:(NSString *)roomName {
+- (void)joinRoom:(NSString *)roomName {
     XMPPJID *roomJID = [XMPPJID jidWithUser:roomName domain:xmppConferenceHostName resource:nil];
     
-    XMPPStream *xmppStream = [[XMPPHandler sharedInstance] xmppStream];
-    XMPPRoomCoreDataStorage *xmppRoomCoreDataStorage = [[XMPPHandler sharedInstance] xmppRoomCoreDataStore];
-    room = [[XMPPRoom alloc] initWithRoomStorage:xmppRoomCoreDataStorage jid:roomJID];
-    [room addDelegate:self delegateQueue:dispatch_get_main_queue()];
-    [room activate:xmppStream];
-    [room joinRoomUsingNickname:[XMPPUtil myUsername] history:nil];
-    //[room fetchConfigurationForm];
+    room = [[RoomChatRepository sharedInstance] roomWithJID:roomJID];
+    if ([room isJoined]) {
+        if ([delegate respondsToSelector:@selector(didJointRoom:)]) {
+            [delegate didJointRoom:room];
+        }
+    }
+    else {
+        XMPPStream *xmppStream = [[XMPPHandler sharedInstance] xmppStream];
+        XMPPRoomCoreDataStorage *xmppRoomCoreDataStorage = [[XMPPHandler sharedInstance] xmppRoomCoreDataStore];
+        room = [[XMPPRoom alloc] initWithRoomStorage:xmppRoomCoreDataStorage jid:roomJID];
+        [room addDelegate:self delegateQueue:dispatch_get_main_queue()];
+        [room activate:xmppStream];
+        [room joinRoomUsingNickname:[XMPPUtil myUsername] history:nil];
+    }    
+        //[room fetchConfigurationForm];
+}
+
+- (BOOL)ownerRoom:(XMPPRoom *)xmppRoom {
+    XMPPRoomCoreDataStorage *xmppRoomCoreDataStorage = [XMPPRoomCoreDataStorage sharedInstance];
+    NSManagedObjectContext *context = [[XMPPHandler sharedInstance] managedObjectContext_room];
+    XMPPStream *stream = [[XMPPHandler sharedInstance] xmppStream];
+    XMPPRoomOccupantCoreDataStorageObject *occupant = [xmppRoomCoreDataStorage occupantForJID:xmppRoom.myRoomJID stream:stream inContext:context];
+    if ([occupant.affiliation isEqualToString:@"owner"]) {
+        return YES;
+    }
+    return NO;
+}
+
+- (void)didGetRoomList:(NSNotification *)notification {
+    roomList = [[XMPPDiscoRoom sharedInstance] rooms];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData];
+    });
+
 }
 @end

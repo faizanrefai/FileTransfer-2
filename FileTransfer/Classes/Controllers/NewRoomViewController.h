@@ -10,18 +10,18 @@
 #import "XMPPRoom.h"
 
 @protocol NewRoomDelegate <NSObject>
-
-- (void)roomCreated:(XMPPJID *)jid;
-
+- (void)didJointRoom:(XMPPRoom *)room;
 @end
 
-@interface NewRoomViewController : UIViewController {
+@interface NewRoomViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>{
     XMPPRoom *room;
+    NSArray *roomList;
 }
 @property (nonatomic, strong) IBOutlet UITextField *roomNameTextField;
 @property (nonatomic, strong) IBOutlet UIButton *createButton;
+@property (nonatomic, strong) IBOutlet UITableView *tableView;
 @property (nonatomic, assign) id<NewRoomDelegate>delegate;
 
-- (IBAction)createRoomAction:(id)sender;
-- (IBAction)cancelAction:(id)sender;
+- (IBAction)joinRoomAction:(id)sender;
+- (IBAction)joinRoomAction:(id)sender;
 @end

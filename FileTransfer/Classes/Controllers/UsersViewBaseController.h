@@ -16,5 +16,5 @@
 }
 
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
-
+@property (nonatomic, readonly) NSFetchedResultsController *fetchedResultsController;
 @end

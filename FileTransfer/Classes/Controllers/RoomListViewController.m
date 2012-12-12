@@ -11,11 +11,13 @@
 #import "XMPPJID.h"
 #import "AppConstants.h"
 #import "RoomChatViewController.h"
+#import "RoomChatRepository.h"
 
 @interface RoomListViewController ()
 - (void)didGetRoomList:(NSNotification *)notification;
 - (void)addNewRoom;
 - (void)joinRoomWithJID:(XMPPJID *)jid;
+- (void)reloadRooms;
 @end
 
 @implementation RoomListViewController
@@ -25,10 +27,8 @@
 {
     [super viewDidLoad];
     self.title = @"Rooms";
-    roomList = [[XMPPDiscoRoom sharedInstance] rooms];
-
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didGetRoomList:) name:xmppDidGetRoomList object:nil];
+    [self reloadRooms];
+    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didGetRoomList:) name:xmppDidGetRoomList object:nil];
     
     UIBarButtonItem *addRoom = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addNewRoom)];
     [[self navigationItem] setRightBarButtonItem:addRoom];
@@ -41,9 +41,11 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    [[XMPPDiscoRoom sharedInstance] discoRoom];
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    //[[XMPPDiscoRoom sharedInstance] discoRoom];
+    [self reloadRooms];
+    [[self tableView] reloadData];
 }
 
 - (void)didReceiveMemoryWarning
@@ -77,8 +79,10 @@
     }
     
     // Configure the cell...
-    XMPPJID *jid = [roomList objectAtIndex:indexPath.row];
-    cell.textLabel.text = jid.user;
+    XMPPRoom *room = [roomList objectAtIndex:indexPath.row];
+    //XMPPJID *jid = [roomList objectAtIndex:indexPath.row];
+    cell.textLabel.text = room.roomJID.user;
+
 
     //NSLog(@"user: %@", jid.user);
     return cell;
@@ -134,25 +138,25 @@
      // Pass the selected object to the new view controller.
      [self.navigationController pushViewController:detailViewController animated:YES];
      */
-    XMPPJID *jid = [roomList objectAtIndex:indexPath.row];
-    [self joinRoomWithJID:jid];
+    //XMPPJID *jid = [roomList objectAtIndex:indexPath.row];
+    XMPPRoom *room = [roomList objectAtIndex:indexPath.row];
+    [self joinRoomWithJID:room.roomJID];
 }
 
 #pragma mark - NewRoomDelegate
-- (void)roomCreated:(XMPPJID *)jid {
+- (void)didJointRoom:(XMPPRoom *)room {
     [self dismissModalViewControllerAnimated:NO];
-    [self joinRoomWithJID:jid];
+    [self joinRoomWithJID:room.roomJID];
 }
 - (void)createdRoomWithName:(NSString *)roomName {
 }
 
 #pragma mark - Private methods
 - (void)didGetRoomList:(NSNotification *)notification {
-    roomList = [[XMPPDiscoRoom sharedInstance] rooms];
+    [self reloadRooms];
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.tableView reloadData];
     });
-    
 }
 
 - (void)addNewRoom {
@@ -167,4 +171,7 @@
     
 }
 
+- (void)reloadRooms {
+    roomList = [[RoomChatRepository sharedInstance] rooms];
+}
 @end

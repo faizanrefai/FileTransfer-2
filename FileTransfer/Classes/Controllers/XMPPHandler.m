@@ -288,7 +288,7 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 	
 	[[self xmppStream] sendElement:presence];
     
-    [xmppTransport registerLegacyService:@"yahoo" username:@"hauc_a" password:@"12345678@X"];
+    //[xmppTransport registerLegacyService:@"yahoo" username:@"hauc_a" password:@"123458@X"];
 }
 
 - (void)goOffline
@@ -323,7 +323,6 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 	}
     
 	[xmppStream setMyJID:[XMPPJID jidWithString:myJID]];
-    
 	password = myPassword;
     
 	NSError *error = nil;
@@ -350,6 +349,7 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 	}
     
 	[xmppStream setMyJID:[XMPPJID jidWithString:myJID]];
+    //[xmppStream setHostName:@"localhost"];
 	password = myPassword;
     
 	NSError *error = nil;
@@ -480,6 +480,7 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 {
 	DDLogVerbose(@"%@: %@", THIS_FILE, THIS_METHOD);
     [[NSNotificationCenter defaultCenter] postNotificationName:didXMPPAuthenticateFail object:nil];
+    [xmppStream disconnect];
 }
 
 - (BOOL)xmppStream:(XMPPStream *)sender didReceiveIQ:(XMPPIQ *)iq
@@ -515,7 +516,7 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 
 - (void)xmppStream:(XMPPStream *)sender didReceivePresence:(XMPPPresence *)presence
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:receivedPresenceStatus object:nil];
+    //[[NSNotificationCenter defaultCenter] postNotificationName:receivedPresenceStatus object:nil];
 	DDLogVerbose(@"%@: %@ - %@", THIS_FILE, THIS_METHOD, [presence fromStr]);
 }
 

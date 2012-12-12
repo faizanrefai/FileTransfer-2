@@ -11,13 +11,23 @@
 #import "XMPPJID.h"
 #import "XMPPRoom.h"
 #import "SelectUserViewController.h"
+#import "OccupantsViewController.h"
 
-@interface RoomChatViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate, UIActionSheetDelegate, UITextFieldDelegate, SelectUserDelegate> {
+typedef enum {
+    kSelectTypeNone,
+    kSelectTypeInvite,
+    kSelectTypeBan,
+    kSelectTypeMute
+}UserSelectType;
+
+@interface RoomChatViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate, UIActionSheetDelegate, UITextFieldDelegate, SelectUserDelegate, XMPPRoomDelegate, OccupantsViewControllerDelegate> {
     XMPPJID *roomJID;
     XMPPRoom *room;
     NSFetchedResultsController *messageFetchedResultsController;
     BOOL keyboardVisible;
     UIActionSheet *actionSheet;
+    UserSelectType selectType;
+    NSArray *currentSelectedUsers;
 }
 
 @property (nonatomic, strong) IBOutlet UITableView *tableView;

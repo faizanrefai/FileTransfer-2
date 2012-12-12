@@ -14,4 +14,7 @@
 + (NSString *)myUsername;
 + (NSString *)myJidString;
 + (XMPPJID *)myBareJID;
++ (NSString *)fullServiceName:(NSString *)name;
++ (NSString *)yahooFullServiceName;
++ (NSString *)msnFullServiceName;
 @end

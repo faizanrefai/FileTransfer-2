@@ -8,13 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
+#import "AccountsViewController.h"
+#import "ListFilesViewController.h"
 
-
-@interface FriendListViewController : UITableViewController <NSFetchedResultsControllerDelegate> {
+@interface FriendListViewController : UITableViewController <NSFetchedResultsControllerDelegate, UIActionSheetDelegate, AccoutViewDelegate> {
     NSFetchedResultsController *fetchedResultsController;
-    
     UIAlertView *inviteAlertView;
     UIAlertView *declineAlertView;
+    UIActionSheet *actionSheet;
 }
 
 @end

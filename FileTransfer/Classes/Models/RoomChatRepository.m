@@ -28,7 +28,7 @@
 }
 
 - (void)addRoom:(XMPPRoom *)room {
-    if (![rooms containsObject:room]) {
+    if (![self roomWithJID:room.roomJID]) {
         [rooms addObject:room];
     }
 }

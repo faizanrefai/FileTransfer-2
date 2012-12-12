@@ -58,7 +58,7 @@
 									<reference key="IBUINavigationItem" ref="1009275725"/>
 								</object>
 								<object class="IBUIBarButtonItem" key="IBUIRightBarButtonItem" id="1052373281">
-									<string key="IBUITitle">Invite</string>
+									<string key="IBUITitle">Select</string>
 									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 									<int key="IBUIStyle">1</int>
 									<reference key="IBUINavigationItem" ref="1009275725"/>

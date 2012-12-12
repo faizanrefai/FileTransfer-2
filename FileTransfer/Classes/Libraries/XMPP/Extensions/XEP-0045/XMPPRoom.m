@@ -4,6 +4,7 @@
 #import "XMPPMessage+XEP0045.h"
 #import "XMPPLogging.h"
 
+#import "RoomOccupant.h"//Hoanhx 20121130
 
 // Log levels: off, error, warn, info, verbose
 // Log flags: trace
@@ -502,9 +503,20 @@ enum XMPPRoomState
 		// </iq>
 		
 		NSXMLElement *query = [iq elementForName:@"query" xmlns:XMPPMUCAdminNamespace];
-		NSArray *items = [query elementsForName:@"items"];
+        //Hoanhx comment 20121129
+		//NSArray *items = [query elementsForName:@"items"];
+        NSArray *items = [query elementsForName:@"item"];
+        NSMutableArray *banOccupants = [[NSMutableArray alloc] init];
+        for (NSXMLElement *item in items) {
+            NSString *jid = [item attributeStringValueForName:@"jid"];            
+            RoomOccupant *occupant = [[RoomOccupant alloc] init];
+            occupant.realJidStr = jid;
+        }
+        [multicastDelegate xmppRoom:self didFetchBanList:banOccupants];
+        //[multicastDelegate xmppRoom:self didFetchBanList:items];
+        //End Hoanhx
 		
-		[multicastDelegate xmppRoom:self didFetchBanList:items];
+		
 	}
 	else
 	{
@@ -672,6 +684,270 @@ enum XMPPRoomState
 	else
 		dispatch_async(moduleQueue, block);
 }
+
+//Hoanhx 20122911 -- Add methods
+- (void)handleSendBanListResponse:(XMPPIQ *)iq withInfo:(id <XMPPTrackingInfo>)info
+{
+	if ([[iq type] isEqualToString:@"result"])
+	{
+		// <iq type='result'
+		//     from='southampton@henryv.shakespeare.lit'
+		//       id='ban2'>
+		//   <query xmlns='http://jabber.org/protocol/muc#admin'>
+		//     <item affiliation='outcast' jid='earlofcambridge@shakespeare.lit'>
+		//       <reason>Treason</reason>
+		//     </item>
+		//   </query>
+		// </iq>
+        
+		[multicastDelegate xmppRoom:self didSendBanList:iq];
+	}
+	else
+	{
+		[multicastDelegate xmppRoom:self didNotSendBanList:iq];
+	}
+}
+//End Hoanhx 20122911
+/**
+ * Remove and add ban list user.
+ */
+//hoanhx 20121129 --add methods
+- (void)sendBanList:(NSArray *)users removeBanList:(NSArray *)removeUsers{
+    dispatch_block_t block = ^{ @autoreleasepool {
+		
+		XMPPLogTrace();
+		
+        //<iq from='kinghenryv@shakespeare.lit/throne'
+        //id='ban3'
+        //to='southampton@chat.shakespeare.lit'
+        //type='set'>
+        //<query xmlns='http://jabber.org/protocol/muc#admin'>
+        //<item affiliation='outcast'
+        //jid='lordscroop@shakespeare.lit'>
+        //<reason>Treason</reason>
+        //</item>
+        //<item affiliation='outcast'
+        //jid='sirthomasgrey@shakespeare.lit'>
+        //<reason>Treason</reason>
+        //</item>
+        //</query>
+        //</iq>
+		
+		NSString *fetchID = [xmppStream generateUUID];
+		
+		NSXMLElement *query = [NSXMLElement elementWithName:@"query" xmlns:XMPPMUCAdminNamespace];
+        //Add ban list
+        for (NSString *userJid in users) {
+            NSXMLElement *item = [NSXMLElement elementWithName:@"item"];
+            [item addAttributeWithName:@"affiliation" stringValue:@"outcast"];
+            [item addAttributeWithName:@"jid" stringValue:userJid];
+            [query addChild:item];
+        }
+		
+        //Remove user from ban list
+        for (NSString *jid in removeUsers) {
+            NSXMLElement *item = [NSXMLElement elementWithName:@"item"];
+            [item addAttributeWithName:@"affiliation" stringValue:@"member"];
+            [item addAttributeWithName:@"jid" stringValue:jid];
+            [query addChild:item];            
+        }
+		XMPPIQ *iq = [XMPPIQ iqWithType:@"set" to:roomJID elementID:fetchID child:query];
+		
+		[xmppStream sendElement:iq];
+		
+		[responseTracker addID:fetchID
+                        target:self
+                      selector:@selector(handleSendBanListResponse:withInfo:)
+                       timeout:60.0];
+	}};
+	
+	if (dispatch_get_current_queue() == moduleQueue)
+		block();
+	else
+		dispatch_async(moduleQueue, block);
+}
+//end hoanhx
+
+
+//Hoanhx 20121130
+/**
+ * fetch voice list from server.
+ */
+- (void)handleFetchVoiceListResponse:(XMPPIQ *)iq withInfo:(id <XMPPTrackingInfo>)info
+{
+	if ([[iq type] isEqualToString:@"result"])
+	{
+        //<iq from='goodfolk@chat.shakespeare.lit'
+        //id='voice3'
+        //to='bard@shakespeare.lit/globe'
+        //type='result'>
+        //<query xmlns='http://jabber.org/protocol/muc#admin'>
+        //<item affiliation='none'
+        //jid='polonius@hamlet/castle'
+        //nick='Polo'
+        //role='participant'/>
+        //<item affiliation='none'
+        //jid='horatio@hamlet/castle'
+        //nick='horotoro'
+        //role='participant'/>
+        //<item affiliation='member'
+        //jid='hecate@shakespeare.lit/broom'
+        //nick='Hecate'
+        //role='participant'/>
+        //</query>
+        //</iq>
+        NSXMLElement *query = [iq elementForName:@"query"];
+        
+        NSArray *items = [query elementsForName:@"item"];
+        NSMutableArray *voiceOccoupantList = [[NSMutableArray alloc] init];
+        for (NSXMLElement *element in items) {
+            NSString *affiliation = [element attributeStringValueForName:@"affiliation"];
+            NSString *jid = [element attributeStringValueForName:@"jid"];
+            NSString *nick = [element attributeStringValueForName:@"nick"];
+            NSString *role = [element attributeStringValueForName:@"role"];
+            
+            RoomOccupant *occupant = [[RoomOccupant alloc] init];
+            occupant.realJidStr = jid;
+            occupant.nickname = nick;
+            occupant.role = role;
+            occupant.affiliation = affiliation;
+            [voiceOccoupantList addObject:occupant];
+        }
+        
+		[multicastDelegate xmppRoom:self didFetchVoiceList:voiceOccoupantList];
+        
+	}
+	else
+	{
+		[multicastDelegate xmppRoom:self didNotFetchVoiceList:iq];
+	}
+}
+
+- (void)fetchVoiceList {
+    dispatch_block_t block = ^{ @autoreleasepool {
+		
+		XMPPLogTrace();
+		
+        //<iq from='bard@shakespeare.lit/globe'
+        //id='voice3'
+        //to='goodfolk@chat.shakespeare.lit'
+        //type='get'>
+        //<query xmlns='http://jabber.org/protocol/muc#admin'>
+        //<item role='participant'/>
+        //</query>
+        //</iq>
+
+		
+		NSString *fetchID = [xmppStream generateUUID];
+		
+		NSXMLElement *item = [NSXMLElement elementWithName:@"item"];
+		[item addAttributeWithName:@"role" stringValue:@"participant"];
+		
+		NSXMLElement *query = [NSXMLElement elementWithName:@"query" xmlns:XMPPMUCAdminNamespace];
+		[query addChild:item];
+		
+		XMPPIQ *iq = [XMPPIQ iqWithType:@"get" to:roomJID elementID:fetchID child:query];
+		
+		[xmppStream sendElement:iq];
+		
+		[responseTracker addID:fetchID
+                        target:self
+                      selector:@selector(handleFetchVoiceListResponse:withInfo:)
+                       timeout:60.0];
+	}};
+	
+	if (dispatch_get_current_queue() == moduleQueue)
+		block();
+	else
+		dispatch_async(moduleQueue, block);
+}
+//End Hoanhx
+
+
+//Hoanhx 20122911 -- Add methods
+- (void)handleSendVoiceListResponse:(XMPPIQ *)iq withInfo:(id <XMPPTrackingInfo>)info
+{
+	if ([[iq type] isEqualToString:@"result"])
+	{
+		// <iq type='result'
+		//     from='southampton@henryv.shakespeare.lit'
+		//       id='ban2'>
+		//   <query xmlns='http://jabber.org/protocol/muc#admin'>
+		//     <item affiliation='outcast' jid='earlofcambridge@shakespeare.lit'>
+		//       <reason>Treason</reason>
+		//     </item>
+		//   </query>
+		// </iq>
+        
+		[multicastDelegate xmppRoom:self didSendVoiceList:iq];
+	}
+	else
+	{
+		[multicastDelegate xmppRoom:self didNotSendVoiceList:iq];
+	}
+}
+//End Hoanhx 20122911
+/**
+ * Remove and add ban list user.
+ */
+//hoanhx 20121129 --add methods
+- (void)sendVoiceList:(NSArray *)users revokeVoiceList:(NSArray *)revokeUsers{
+    dispatch_block_t block = ^{ @autoreleasepool {
+		
+		XMPPLogTrace();
+		
+        //<iq from='bard@shakespeare.lit/globe'
+        //id='voice4'
+        //to='goodfolk@chat.shakespeare.lit'
+        //type='set'>
+        //<query xmlns='http://jabber.org/protocol/muc#admin'>
+        //<item nick='Hecate'
+        //role='visitor'/>
+        //<item nick='rosencrantz'
+        //role='participant'>
+        //<reason>A worthy fellow.</reason>
+        //</item>
+        //<item nick='guildenstern'
+        //role='participant'>
+        //<reason>A worthy fellow.</reason>
+        //</item>
+        //</query>
+        //</iq>
+		NSString *fetchID = [xmppStream generateUUID];
+		
+		NSXMLElement *query = [NSXMLElement elementWithName:@"query" xmlns:XMPPMUCAdminNamespace];
+        //Add ban list
+        for (RoomOccupant *occupant in users) {
+            NSXMLElement *item = [NSXMLElement elementWithName:@"item"];
+            [item addAttributeWithName:@"nick" stringValue:occupant.nickname];
+            [item addAttributeWithName:@"role" stringValue:occupant.role];
+            [query addChild:item];
+        }
+		
+        //Remove user from ban list
+//        for (XMPPRoomOccupantCoreDataStorageObject *occupant in revokeUsers) {
+//            NSXMLElement *item = [NSXMLElement elementWithName:@"item"];
+//            [item addAttributeWithName:@"nick" stringValue:occupant.nickname];
+//            [item addAttributeWithName:@"role" stringValue:@"visitor"];
+//            [query addChild:item];
+//        }
+		XMPPIQ *iq = [XMPPIQ iqWithType:@"set" to:roomJID elementID:fetchID child:query];
+		
+		[xmppStream sendElement:iq];
+		
+		[responseTracker addID:fetchID
+                        target:self
+                      selector:@selector(handleSendVoiceListResponse:withInfo:)
+                       timeout:60.0];
+	}};
+	
+	if (dispatch_get_current_queue() == moduleQueue)
+		block();
+	else
+		dispatch_async(moduleQueue, block);
+}
+//end hoanhx
+
 
 - (void)handleEditRoomPrivilegesResponse:(XMPPIQ *)iq withInfo:(id <XMPPTrackingInfo>)info
 {

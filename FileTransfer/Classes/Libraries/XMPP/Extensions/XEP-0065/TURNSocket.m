@@ -9,6 +9,7 @@
 #warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
 #endif
 
+
 /**
  * Does ARC support support GCD objects?
  * It does if the minimum deployment target is iOS 6+ or Mac OS X 10.8+
@@ -35,13 +36,13 @@
 
 #endif
 
-// Log levels: off, error, warn, info, verbose
-#if DEBUG
-  static const int xmppLogLevel = XMPP_LOG_LEVEL_WARN; // | XMPP_LOG_FLAG_TRACE;
-#else
-  static const int xmppLogLevel = XMPP_LOG_LEVEL_WARN;
-#endif
-
+//// Log levels: off, error, warn, info, verbose
+//#if DEBUG
+//  static const int xmppLogLevel = XMPP_LOG_LEVEL_WARN; // | XMPP_LOG_FLAG_TRACE;
+//#else
+//  static const int xmppLogLevel = XMPP_LOG_LEVEL_WARN;
+//#endif
+static const int xmppLogLevel = XMPP_LOG_LEVEL_WARN; // | XMPP_LOG_FLAG_TRACE;
 // Define various states
 #define STATE_INIT                0
 
@@ -1178,6 +1179,7 @@ static NSMutableArray *proxyCandidates;
 	memcpy(byteBuffer+2, &rsv, sizeof(rsv));
 	
 	UInt8 atyp = 3;
+    //UInt8 atyp = 1;
 	memcpy(byteBuffer+3, &atyp, sizeof(atyp));
 	
 	UInt8 hashLength = [hash length];
@@ -1262,6 +1264,7 @@ static NSMutableArray *proxyCandidates;
 		
 		XMPPLogVerbose(@"TURNSocket: SOCKS_CONNECT_REPLY_1: ver(%o) rep(%o)", ver, rep);
 		
+        //if(ver == 5)
 		if(ver == 5 && rep == 0)
 		{
 			// We read in 5 bytes which we expect to be:

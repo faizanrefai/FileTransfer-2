@@ -14,6 +14,9 @@
 #import "RoomMemberListViewController.h"
 #import "RoomChatRepository.h"
 #import "XMPPUtil.h"
+#import "MBProgressHUD.h"
+#import "ShowMessage.h"
+
 
 @interface RoomChatViewController ()
 - (void)configureDataForCell:(UITableViewCell *)cell message:(XMPPRoomMessageCoreDataStorageObject *)message;
@@ -23,8 +26,16 @@
 - (void)showActionSheet;
 - (void)exitRoom;
 - (void)showMembers;
-- (void)showAllUsers;
+- (void)showAllUsersWithSelectedJids:(NSArray *)jids;
 
+- (void)sendInviteMessageToUsers:(NSArray *)users;
+
+- (void)getBanUserList;
+- (void)sendBanUserList:(NSArray *)selectedUsers;
+- (void)sendRequestWithSelectedUsers:(NSArray *)selectedUsers;
+- (NSArray *)jidsFromRoomOccupants:(NSArray *)occupants;
+- (NSArray *)occupantsInRoom;
+- (NSArray *)visitorOccupantInRoom;
 @end
 
 @implementation RoomChatViewController
@@ -54,7 +65,7 @@
     [[self navigationItem] setRightBarButtonItem:exitRoomButton];
     
     //
-    actionSheet = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Invite User", @"Show Members", @"Leave Room", nil];
+    actionSheet = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Invite User", @"Show Members", @"Lock/Unlock", @"Mute/Unmute", @"Leave Room", nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector (keyboardDidShow:)
@@ -81,6 +92,8 @@
 
 - (void)dealloc {
     [room removeDelegate:self delegateQueue:dispatch_get_main_queue()];
+    [messageFetchedResultsController setDelegate:nil];
+
 }
 
 #pragma mark - public methods
@@ -193,13 +206,28 @@
 #pragma mark - UIActionSheet delegate
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     NSLog(@"index: %d", buttonIndex);
+    selectType = kSelectTypeNone;
     if (buttonIndex == 0) {
-        [self showAllUsers];
+        selectType = kSelectTypeInvite;
+        [self showAllUsersWithSelectedJids:nil];
     }
+    //Show memeber
     else if (buttonIndex == 1){
         [self showMembers];
     }
+    //Lock/unlock
     else if (buttonIndex == 2) {
+        selectType = kSelectTypeBan;
+        [self getBanUserList];
+        
+    }
+    //Mute/unmute
+    else if (buttonIndex == 3) {
+        selectType = kSelectTypeMute;
+        [room fetchVoiceList];
+    }
+    //Exit
+    else if (buttonIndex == 4) {
         [self exitRoom];
     }
 }
@@ -210,13 +238,89 @@
     return YES;
 }
 
-#pragma mark - UsersViewController delegate
-- (void)didSelectUser:(XMPPUserCoreDataStorageObject *)user {
+#pragma mark - SelectUserViewController delegate
+- (void)didSelectUsers:(NSArray *)users {
     [self dismissModalViewControllerAnimated:YES];
-    NSString *myUsername = [XMPPUtil myUsername];
-    NSString *message = [NSString stringWithFormat:@"%@ invite you join room: %@", myUsername, room.roomJID.user];
-    [room inviteUser:user.jid withMessage:message];
+    if (selectType == kSelectTypeInvite) {
+        [self sendInviteMessageToUsers:users];
+    }
+    else if (selectType == kSelectTypeBan) {
+        [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+        [self sendBanUserList:users];
+    }
 }
+
+#pragma mark - OccupantsViewController Delegate
+- (void)occupantsSelected:(NSArray *)occupants {
+    [self dismissModalViewControllerAnimated:YES];
+    
+    if (selectType == kSelectTypeMute) {
+        NSArray *occupantsInRoom = [self occupantsInRoom];
+        [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+        NSArray *selectedJids = [self jidsFromRoomOccupants:occupants];
+
+        for (XMPPRoomOccupantCoreDataStorageObject *occupant in occupantsInRoom) {
+            if ([selectedJids containsObject:occupant.realJIDStr]) {
+                occupant.role = @"visitor";
+            }
+            else {
+                //occupant.role = @"participant";
+            }
+        }
+        [room sendVoiceList:occupantsInRoom revokeVoiceList:nil];
+    }
+}
+
+#pragma mark - XMPPRoom Delegate
+- (void)xmppRoom:(XMPPRoom *)sender didFetchBanList:(NSArray *)items {
+    currentSelectedUsers = items;
+    NSArray *jids = [self jidsFromRoomOccupants:currentSelectedUsers];
+    [self showAllUsersWithSelectedJids:jids];
+}
+
+- (void)xmppRoom:(XMPPRoom *)sender didNotFetchBanList:(XMPPIQ *)iqError {
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    [ShowMessage showInfoMessageWithTitle:@"Info" message:@"Lock/Unlock user fail!" type:kMessageTypeInfo inView:self.view];
+}
+
+- (void)xmppRoom:(XMPPRoom *)sender didSendBanList:(XMPPIQ *)iqResult {
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    [ShowMessage showInfoMessageWithTitle:@"Info" message:@"Lock/Unlock success!" type:kMessageTypeInfo inView:self.view];
+}
+
+- (void)xmppRoom:(XMPPRoom *)sender didNotSendBanList:(XMPPIQ *)iqResult {    
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    [ShowMessage showInfoMessageWithTitle:@"Info" message:@"Lock/Unlock user fail!" type:kMessageTypeInfo inView:self.view];
+
+}
+
+- (void)xmppRoom:(XMPPRoom *)sender didFetchVoiceList:(NSArray *)items {
+    currentSelectedUsers = items;
+    OccupantsViewController *occupantViewController = [[OccupantsViewController alloc] init];
+    occupantViewController.delegate = self;
+    
+    //Get visitor occupant.
+    NSArray *visitorOccupants = [self visitorOccupantInRoom];
+    occupantViewController.currentOccupantsSelected = visitorOccupants;
+    occupantViewController.occupants = [self occupantsInRoom];
+    [self presentModalViewController:occupantViewController animated:YES];
+}
+
+- (void)xmppRoom:(XMPPRoom *)sender didNotFetchVoiceList:(XMPPIQ *)iqError {
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    [ShowMessage showInfoMessageWithTitle:@"Info" message:@"Mute/Unmute success!" type:kMessageTypeInfo inView:self.view];
+}
+
+- (void)xmppRoom:(XMPPRoom *)sender didSendVoiceList:(XMPPIQ *)iqResult {
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    [ShowMessage showInfoMessageWithTitle:@"Info" message:@"Mute/Unmute success!" type:kMessageTypeInfo inView:self.view];
+}
+
+- (void)xmppRoom:(XMPPRoom *)sender didNotSendVoiceList:(XMPPIQ *)iqError {
+    [MBProgressHUD hideAllHUDsForView:self.view animated:YES];
+    [ShowMessage showInfoMessageWithTitle:@"Info" message:@"Mute/Unmute user fail!" type:kMessageTypeInfo inView:self.view];
+}
+
 
 #pragma mark - Private methods
 - (void)configureDataForCell:(UITableViewCell *)cell message:(XMPPRoomMessageCoreDataStorageObject *)message {
@@ -320,12 +424,100 @@
 }
 
 - (void)showMembers {
+    NSArray *items = [self occupantsInRoom];
+    RoomMemberListViewController *memberListViewController = [[RoomMemberListViewController alloc] init];
+    memberListViewController.members = items;
+    [self.navigationController pushViewController:memberListViewController animated:YES];
+}
+
+- (void)showAllUsersWithSelectedJids:(NSArray *)jids {
+    SelectUserViewController *usersViewController = [[SelectUserViewController alloc] init];
+    if (jids) {
+        usersViewController.usersSelected = jids;
+    }
+    usersViewController.delegate = self;
+    [self presentModalViewController:usersViewController animated:YES];
+}
+
+/**
+ * Send invite message to first user selected.
+ */
+- (void)sendInviteMessageToUsers:(NSArray *)users {
+    if (users.count > 0) {
+        NSString *myUsername = [XMPPUtil myUsername];
+        NSString *message = [NSString stringWithFormat:@"%@ invite you join room: %@", myUsername, room.roomJID.user];
+        XMPPUserCoreDataStorageObject *user = [users objectAtIndex:0];
+        [room inviteUser:user.jid withMessage:message];
+    }
+}
+
+/*
+ * Get Ban user list from server.
+ */
+- (void)getBanUserList {
+    [room fetchBanList];
+}
+
+/*
+ * send list ban user
+ */
+- (void)sendBanUserList:(NSArray *)users {
+    NSMutableArray *selectedJids = [[NSMutableArray alloc] init];
+    for (XMPPUserCoreDataStorageObject *user in users) {
+        NSString *jid = user.jidStr;
+        [selectedJids addObject:jid];
+    }    
+    
+    NSMutableArray *removeBanList = [[NSMutableArray alloc] init];
+    NSArray *currentSelectedJids = [self jidsFromRoomOccupants:currentSelectedUsers];
+    for (NSString *jid in currentSelectedJids) {
+        if (![selectedJids containsObject:jid]) {
+            [removeBanList addObject:jid];
+        }
+    }
+    [room sendBanList:selectedJids removeBanList:removeBanList];
+}
+
+- (void)sendRequestWithSelectedUsers:(NSArray *)users {
+    NSMutableArray *selectedJids = [[NSMutableArray alloc] init];
+    for (XMPPUserCoreDataStorageObject *user in users) {
+        NSString *jid = user.jidStr;
+        [selectedJids addObject:jid];
+    }
+    
+    NSMutableArray *removeList = [[NSMutableArray alloc] init];
+    NSArray *currentSelectedJids = [self jidsFromRoomOccupants:currentSelectedUsers];
+    for (NSString *jid in currentSelectedJids) {
+        if (![selectedJids containsObject:jid]) {
+            [removeList addObject:jid];
+        }
+    }
+
+    if (selectType == kSelectTypeBan) {
+        [room sendBanList:selectedJids removeBanList:removeList];
+    }
+    else if (selectType ==kSelectTypeMute) {
+        //NSMutableArray *voiceOccupants = [[NSMutableArray alloc] init];
+        //NSMutableArray *revokeVoiceOccupants = [[NSMutableArray alloc] init];
+        //[room sendVoiceList:selectedJids revokeVoiceList:removeList];
+    }
+}
+
+- (NSArray *)jidsFromRoomOccupants:(NSArray *)occupants {
+    NSMutableArray *jids = [[NSMutableArray alloc] init];
+    for (XMPPRoomOccupantCoreDataStorageObject *occupant in occupants) {
+        [jids addObject:occupant.realJIDStr];
+    }
+    return jids;
+}
+
+- (NSArray *)occupantsInRoom {
     NSManagedObjectContext *moc = [[XMPPHandler sharedInstance] managedObjectContext_room];
     
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"XMPPRoomOccupantCoreDataStorageObject"
                                               inManagedObjectContext:moc];
     
-    NSSortDescriptor *sd1 = [[NSSortDescriptor alloc] initWithKey:@"nickname" ascending:YES];    
+    NSSortDescriptor *sd1 = [[NSSortDescriptor alloc] initWithKey:@"nickname" ascending:YES];
     NSArray *sortDescriptors = [NSArray arrayWithObjects:sd1, nil];
     
     
@@ -337,17 +529,17 @@
     [fetchRequest setSortDescriptors:sortDescriptors];
     
     NSArray *items = [moc executeFetchRequest:fetchRequest error:nil];
-    RoomMemberListViewController *memberListViewController = [[RoomMemberListViewController alloc] init];
-    memberListViewController.members = items;
-    [self.navigationController pushViewController:memberListViewController animated:YES];
-
+    return items;
 }
 
-- (void)showAllUsers {
-    SelectUserViewController *usersViewController = [[SelectUserViewController alloc] init];
-    usersViewController.delegate = self;
-    [self presentModalViewController:usersViewController animated:YES];
+- (NSArray *)visitorOccupantInRoom {
+    NSArray *occupants = [self occupantsInRoom];
+    NSMutableArray *visitorOccupants = [[NSMutableArray alloc] init];
+    for (XMPPRoomOccupantCoreDataStorageObject *occupant in occupants) {
+        if ([occupant.role isEqualToString:@"visitor"]) {
+            [visitorOccupants addObject:occupant];
+        }
+    }
+    return visitorOccupants;
 }
-
-
 @end

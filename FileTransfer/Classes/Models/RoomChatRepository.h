@@ -21,4 +21,5 @@
 - (void)removeRoom:(XMPPRoom *)room;
 - (XMPPRoom *)roomWithName:(NSString *)roomName;
 - (XMPPRoom *)roomWithJID:(XMPPJID *)roomJid;
+
 @end

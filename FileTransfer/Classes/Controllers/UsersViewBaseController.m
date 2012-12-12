@@ -19,6 +19,7 @@
 @implementation UsersViewBaseController
 
 @synthesize tableView;
+@synthesize fetchedResultsController;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

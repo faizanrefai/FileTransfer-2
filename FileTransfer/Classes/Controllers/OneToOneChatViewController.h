@@ -8,11 +8,17 @@
 
 #import <UIKit/UIKit.h>
 #import "XMPPUserCoreDataStorageObject.h"
+#import "TURNSocket.h"
 
-@interface OneToOneChatViewController : UIViewController <NSFetchedResultsControllerDelegate, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate>{
+@interface OneToOneChatViewController : UIViewController <NSFetchedResultsControllerDelegate, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate,  TURNSocketDelegate, GCDAsyncSocketDelegate>{
+    
     XMPPUserCoreDataStorageObject *user_;
-    NSFetchedResultsController *fetchedResultsController;
+    NSFetchedResultsController *chatMessageFetchedResultsController;
+    NSFetchedResultsController *fileTransferMessageFetchedResultsController;
     BOOL keyboardVisible;
+    NSMutableArray *turnSockets;
+    
+    NSMutableArray *messages;
 }
 
 @property (nonatomic) XMPPUserCoreDataStorageObject *user;

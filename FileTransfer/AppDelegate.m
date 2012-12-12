@@ -9,6 +9,11 @@
 #import "AppDelegate.h"
 #import <CoreData/CoreData.h>
 #import <RestKit/RestKit.h> 
+#import "DirectoryHelper.h"
+#import "DDLog.h"
+#import "DDTTYLogger.h"
+#import "XMPPHandler.h"
+#import "FileTransferController.h"
 
 @implementation AppDelegate
 
@@ -18,7 +23,17 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    RKClient* client = [RKClient clientWithBaseURLString:@"http://173.201.188.96/~wpalfad/webservice"];  
+    [RKClient clientWithBaseURLString:@"http://173.201.188.96/~wpalfad/webservice"];
+    [DDLog addLogger:[DDTTYLogger sharedInstance]];
+    //Create folder to save file
+    [DirectoryHelper createSaveFilesDirectory];
+    [DirectoryHelper createSentFilesDirectory];
+    
+    //Initialize keychain
+    [KeychainUtil initAllKeychains];
+    
+    //
+    fileTransferController = [FileTransferController sharedInstance];
     
     // Override point for customization after application launch.
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];

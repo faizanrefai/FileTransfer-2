@@ -20,3 +20,16 @@ extern NSString * const didXMPPAuthenticated;
 extern NSString * const didXMPPAuthenticateFail;
 extern NSString * const xmppDidDisconnect;
 extern NSString * const xmppDidGetRoomList;
+
+#pragma mark - Keychain identify
+extern NSString * const kXMPPPasswordKeychainIdentify;
+extern NSString * const kYahooPasswordKeychainIdentify;
+extern NSString * const kMSNPasswordKeychainIdentify;
+
+#pragma mark - xmpp service
+extern NSString * const kYahooService;
+extern NSString * const kMSNService;
+
+#pragma mark - File % Folder
+extern NSString * const kFileFolderName;
+extern NSString * const kSentFileFolderName;

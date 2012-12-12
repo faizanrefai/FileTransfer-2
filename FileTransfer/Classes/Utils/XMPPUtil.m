@@ -31,4 +31,16 @@
     return myJid;
 }
 
++ (NSString *)fullServiceName:(NSString *)name {
+    return [name stringByAppendingFormat:@".%@", xmppHostName];
+}
+
++ (NSString *)yahooFullServiceName {
+    return [self fullServiceName:kYahooService];
+}
+
++ (NSString *)msnFullServiceName {
+    return [self fullServiceName:kMSNService];
+}
+
 @end

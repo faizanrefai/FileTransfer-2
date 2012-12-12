@@ -132,6 +132,12 @@ static NSString *const XMPPMUCOwnerNamespace = @"http://jabber.org/protocol/muc#
 - (void)fetchMembersList;
 - (void)fetchModeratorsList;
 
+//hoanhx 20121129 --add methods
+- (void)fetchVoiceList;
+- (void)sendBanList:(NSArray *)users removeBanList:(NSArray *)removeUsers;
+- (void)sendVoiceList:(NSArray *)users revokeVoiceList:(NSArray *)revokeUsers;
+//end hoanhx
+
 /**
  * The ban list, member list, and moderator list are simply subsets of the room privileges list.
  * That is, a user's status as 'banned', 'member', 'moderator', etc,
@@ -302,5 +308,15 @@ static NSString *const XMPPMUCOwnerNamespace = @"http://jabber.org/protocol/muc#
 
 - (void)xmppRoom:(XMPPRoom *)sender didEditPrivileges:(XMPPIQ *)iqResult;
 - (void)xmppRoom:(XMPPRoom *)sender didNotEditPrivileges:(XMPPIQ *)iqError;
+
+//Hoanhx 20121129 -- Add methods
+- (void)xmppRoom:(XMPPRoom *)sender didSendBanList:(XMPPIQ *)iqResult;
+- (void)xmppRoom:(XMPPRoom *)sender didNotSendBanList:(XMPPIQ *)iqError;
+- (void)xmppRoom:(XMPPRoom *)sender didFetchVoiceList:(NSArray *)items;
+- (void)xmppRoom:(XMPPRoom *)sender didNotFetchVoiceList:(XMPPIQ *)iqError;
+- (void)xmppRoom:(XMPPRoom *)sender didSendVoiceList:(XMPPIQ *)iqResult;
+- (void)xmppRoom:(XMPPRoom *)sender didNotSendVoiceList:(XMPPIQ *)iqError;
+
+//End hoanhx
 
 @end

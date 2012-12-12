@@ -2064,7 +2064,7 @@ enum XMPPStreamConfig
 	NSString *outgoingStr = [iq compactXMLString];
 	NSData *outgoingData = [outgoingStr dataUsingEncoding:NSUTF8StringEncoding];
 	
-	XMPPLogSend(@"SEND: %@", outgoingStr);
+	XMPPLogSend(@"continueSendIQ -- SEND: %@", outgoingStr);
 	numberOfBytesSent += [outgoingData length];
 	
 	[asyncSocket writeData:outgoingData
@@ -2133,7 +2133,7 @@ enum XMPPStreamConfig
 	NSString *outgoingStr = [element compactXMLString];
 	NSData *outgoingData = [outgoingStr dataUsingEncoding:NSUTF8StringEncoding];
 	
-	XMPPLogSend(@"SEND: %@", outgoingStr);
+	XMPPLogSend(@"continueSendElement -- SEND: %@", outgoingStr);
 	numberOfBytesSent += [outgoingData length];
 	
 	[asyncSocket writeData:outgoingData
@@ -3447,7 +3447,7 @@ enum XMPPStreamConfig
 	lastSendReceiveTime = [NSDate timeIntervalSinceReferenceDate];
 	numberOfBytesReceived += [data length];
 	
-	XMPPLogRecvPre(@"RECV: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+	XMPPLogRecvPre(@"didReadData -- RECV: %@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
 	
 	// Asynchronously parse the xml data
 	[parser parseData:data];
@@ -3576,7 +3576,7 @@ enum XMPPStreamConfig
 	if (sender != parser) return;
 	
 	XMPPLogTrace();
-	XMPPLogRecvPost(@"RECV: %@", [root compactXMLString]);
+	XMPPLogRecvPost(@"didReadRoot -- RECV: %@", [root compactXMLString]);
 		
 	// At this point we've sent our XML stream header, and we've received the response XML stream header.
 	// We save the root element of our stream for future reference.
@@ -3674,7 +3674,7 @@ enum XMPPStreamConfig
 	if (sender != parser) return;
 	
 	XMPPLogTrace();
-	XMPPLogRecvPost(@"RECV: %@", [element compactXMLString]);
+	XMPPLogRecvPost(@"didReadElement -- RECV: %@", [element compactXMLString]);
 		
 	NSString *elementName = [element name];
 	

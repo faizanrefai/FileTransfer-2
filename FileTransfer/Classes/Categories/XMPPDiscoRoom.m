@@ -12,6 +12,7 @@
 #import "XMPPJID.h"
 #import "AppConstants.h"
 #import "XMPPStream.h"
+#import "XMPPRoom.h"
 
 @implementation XMPPDiscoRoom
 @synthesize rooms;
@@ -19,8 +20,7 @@
 + (XMPPDiscoRoom *)sharedInstance {
     static XMPPDiscoRoom *staticInstance = nil;
     if (staticInstance == nil) {
-        staticInstance = [[XMPPDiscoRoom alloc] init];
-        
+        staticInstance = [[XMPPDiscoRoom alloc] init];        
     }
     return staticInstance;
 }
@@ -53,6 +53,16 @@
 		block();
 	else
 		dispatch_async(moduleQueue, block);
+}
+
+- (NSArray *)jointRooms {
+    NSMutableArray *jointRooms = [[NSMutableArray alloc] init];
+    for (XMPPRoom *room in rooms) {
+        if ([room isJoined]) {
+            [jointRooms addObject:room];
+        }
+    }
+    return jointRooms;
 }
 
 #pragma mark - XMPPStream delegate

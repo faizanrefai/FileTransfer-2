@@ -21,4 +21,5 @@ static NSString *const XMPPDiscoRoomNamespace  = @"http://jabber.org/protocol/di
 
 + (XMPPDiscoRoom *)sharedInstance;
 - (void)discoRoom;
+- (NSArray *)jointRooms;
 @end

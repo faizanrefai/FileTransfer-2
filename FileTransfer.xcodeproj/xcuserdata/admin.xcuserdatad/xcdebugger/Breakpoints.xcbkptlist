@@ -4,52 +4,251 @@
    version = "1.0">
    <FileBreakpoints>
       <FileBreakpoint
-         shouldBeEnabled = "Yes"
+         shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/Roster/XMPPRoster.m"
-         timestampString = "373621120.019029"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/Roster/MemoryStorage/XMPPRosterMemoryStorage.m"
+         timestampString = "374977890.363579"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "665"
-         endingLineNumber = "665"
-         landmarkName = "-xmppStream:didReceivePresence:"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/Roster/XMPPRoster.m"
-         timestampString = "373621123.315661"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "683"
-         endingLineNumber = "683"
-         landmarkName = "-xmppStream:didReceivePresence:"
+         startingLineNumber = "730"
+         endingLineNumber = "730"
+         landmarkName = "-handlePresence:xmppStream:"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/Roster/XMPPRoster.m"
-         timestampString = "373626404.530976"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376367580.495743"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "619"
-         endingLineNumber = "619"
-         landmarkName = "-xmppStream:didReceiveIQ:"
+         startingLineNumber = "1339"
+         endingLineNumber = "1339"
+         landmarkName = "-socketDidDisconnect:withError:"
          landmarkType = "5">
       </FileBreakpoint>
-   </FileBreakpoints>
-   <ExceptionBreakpoints>
-      <ExceptionBreakpoint
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376367588.847389"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1308"
+         endingLineNumber = "1308"
+         landmarkName = "-socket:didReadData:withTag:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376368021.86729"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "655"
+         endingLineNumber = "655"
+         landmarkName = "-processDiscoInfoResponse:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376368031.621301"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "622"
+         endingLineNumber = "622"
+         landmarkName = "-processDiscoItemsResponse:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376368068.252738"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "855"
+         endingLineNumber = "855"
+         landmarkName = "-queryNextProxyCandidate"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376368782.556243"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "639"
+         endingLineNumber = "639"
+         landmarkName = "-processDiscoItemsResponse:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376368837.346945"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "938"
+         endingLineNumber = "938"
+         landmarkName = "-queryCandidateJIDs"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376368862.748247"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "953"
+         endingLineNumber = "953"
+         landmarkName = "-queryNextCandidateJID"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376368871.727916"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "965"
+         endingLineNumber = "965"
+         landmarkName = "-queryNextCandidateJID"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376370553.878605"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1143"
+         endingLineNumber = "1143"
+         landmarkName = "-socksConnect"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376370574.510803"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1245"
+         endingLineNumber = "1245"
+         landmarkName = "-socket:didReadData:withTag:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376370629.52558"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "1236"
+         endingLineNumber = "1236"
+         landmarkName = "-socket:didReadData:withTag:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376385624.252945"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "756"
+         endingLineNumber = "756"
+         landmarkName = "-processRequestResponse:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Extensions/XEP-0065/TURNSocket.m"
+         timestampString = "376386663.407131"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "764"
+         endingLineNumber = "764"
+         landmarkName = "-processRequestResponse:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Vendor/CocoaAsyncSocket/GCDAsyncSocket.m"
+         timestampString = "376392146.390664"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "3774"
+         endingLineNumber = "3774"
+         landmarkName = "-readDataWithTimeout:buffer:bufferOffset:tag:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Vendor/CocoaAsyncSocket/GCDAsyncSocket.m"
+         timestampString = "376392165.954061"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "3870"
+         endingLineNumber = "3870"
+         landmarkName = "-readDataToData:withTimeout:maxLength:tag:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "FileTransfer/Classes/Libraries/XMPP/Vendor/CocoaAsyncSocket/GCDAsyncSocket.m"
+         timestampString = "376392180.628708"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "3918"
+         endingLineNumber = "3918"
+         landmarkName = "-progressOfReadReturningTag:bytesDone:total:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         scope = "0"
-         stopOnStyle = "0">
-      </ExceptionBreakpoint>
-   </ExceptionBreakpoints>
+         filePath = "FileTransfer/Classes/Controllers/RoomMemberListViewController.m"
+         timestampString = "376973121.507798"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "69"
+         endingLineNumber = "69"
+         landmarkName = "-tableView:cellForRowAtIndexPath:"
+         landmarkType = "5">
+      </FileBreakpoint>
+   </FileBreakpoints>
 </Bucket>
