@@ -11,7 +11,7 @@
 #import "XMPPJID.h"
 
 @interface RoomChatRepository : NSObject {
-    
+    NSMutableDictionary *fileReceiveDict;
 }
 
 @property (nonatomic, strong) NSMutableArray *rooms;

@@ -8,6 +8,10 @@
 
 #import "AppConstants.h"
 
+
+#pragma mark - Web server
+NSString * const webServerName = @"http://173.201.188.96/~wpalfad/webservice";
+
 NSString * const kStreamBareJIDString = @"MyBareJIDString";
 NSString * const xmppHostName = @"palfad.com";
 //NSString * const xmppHostName = @"ukkc-macbook.local";

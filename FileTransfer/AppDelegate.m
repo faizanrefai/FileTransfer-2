@@ -14,7 +14,7 @@
 #import "DDTTYLogger.h"
 #import "XMPPHandler.h"
 #import "FileTransferController.h"
-
+#import "AppConstants.h"
 @implementation AppDelegate
 
 @synthesize window = _window;
@@ -23,7 +23,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [RKClient clientWithBaseURLString:@"http://173.201.188.96/~wpalfad/webservice"];
+    [RKClient clientWithBaseURLString:webServerName];
     [DDLog addLogger:[DDTTYLogger sharedInstance]];
     //Create folder to save file
     [DirectoryHelper createSaveFilesDirectory];
@@ -31,8 +31,6 @@
     
     //Initialize keychain
     [KeychainUtil initAllKeychains];
-    
-    //
     fileTransferController = [FileTransferController sharedInstance];
     
     // Override point for customization after application launch.

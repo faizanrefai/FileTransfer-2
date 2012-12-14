@@ -16,7 +16,11 @@
 #import "XMPPUtil.h"
 #import "MBProgressHUD.h"
 #import "ShowMessage.h"
+#import "DeviceUtil.h"
+#import "DateUtil.h"
+#import "DirectoryHelper.h"
 
+#import <RestKit/RestKit.h>
 
 @interface RoomChatViewController ()
 - (void)configureDataForCell:(UITableViewCell *)cell message:(XMPPRoomMessageCoreDataStorageObject *)message;
@@ -29,13 +33,15 @@
 - (void)showAllUsersWithSelectedJids:(NSArray *)jids;
 
 - (void)sendInviteMessageToUsers:(NSArray *)users;
-
+- (void)sendFile:(NSData *)fileData;
 - (void)getBanUserList;
 - (void)sendBanUserList:(NSArray *)selectedUsers;
 - (void)sendRequestWithSelectedUsers:(NSArray *)selectedUsers;
 - (NSArray *)jidsFromRoomOccupants:(NSArray *)occupants;
 - (NSArray *)occupantsInRoom;
 - (NSArray *)visitorOccupantInRoom;
+- (void)sendMessageWithFileURL:(NSString *)url;
+- (void)showImagePicker;
 @end
 
 @implementation RoomChatViewController
@@ -65,7 +71,7 @@
     [[self navigationItem] setRightBarButtonItem:exitRoomButton];
     
     //
-    actionSheet = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Invite User", @"Show Members", @"Lock/Unlock", @"Mute/Unmute", @"Leave Room", nil];
+    actionSheet = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Invite User", @"Show Members", @"Lock/Unlock", @"Send File", @"Leave Room", nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector (keyboardDidShow:)
@@ -190,7 +196,7 @@
 
 #pragma mark - UITableView delegate
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
+
 }
 
 
@@ -221,10 +227,10 @@
         [self getBanUserList];
         
     }
-    //Mute/unmute
+    //Send File
     else if (buttonIndex == 3) {
-        selectType = kSelectTypeMute;
-        [room fetchVoiceList];
+        selectType = kSendFileType;
+        [self showImagePicker];
     }
     //Exit
     else if (buttonIndex == 4) {
@@ -321,6 +327,61 @@
     [ShowMessage showInfoMessageWithTitle:@"Info" message:@"Mute/Unmute user fail!" type:kMessageTypeInfo inView:self.view];
 }
 
+#pragma mark - RKRequest Delegate
+- (void)request:(RKRequest*)request didLoadResponse:(RKResponse*)response {
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    if ([request isGET]) {
+        // Handling GET /foo.xml
+        if ([response isOK]) {
+            // Success! Let's take a look at the data
+            NSLog(@"Retrieved XML: %@", [response bodyAsString]);
+        }
+    } else if ([request isPOST]) {
+        // Handling POST /other.json  file
+        NSString *jsonString = [response bodyAsString];
+        NSLog(@"%@", jsonString);
+        
+        NSString *path = [DirectoryHelper sentFilesDirectory];
+        path = [path stringByAppendingPathComponent:fileName];
+        NSError *error = nil;
+        [dataToSend writeToFile:path options:NSDataWritingAtomic error:&error];
+        if (!error) {
+            
+        }
+        [self sendMessageWithFileURL:jsonString];
+    }
+}
+
+- (void)request:(RKRequest *)request didFailLoadWithError:(NSError *)error {
+    [ShowMessage showInfoMessageWithTitle:@"Error" message:@"send file fail!" type:kMessageTypeError inView:self.view];
+}
+
+#pragma mark -
+#pragma mark - UIImagePickerController delegate
+//Tells the delegate that the user picked a still image or movie.
+- (void)imagePickerController:(UIImagePickerController *)picker
+didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    UIImage *originalImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+    //Show OriginalImage size
+    dataToSend = UIImageJPEGRepresentation(originalImage, 1);
+    [self sendFile:dataToSend];
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+//Tells the delegate that the user cancelled the pick operation.
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+//Tells the delegate that the user picked an image. (Deprecated in iOS 3.0. Use imagePickerController:didFinishPickingMediaWithInfo: instead.)
+- (void)imagePickerController:(UIImagePickerController *)picker
+        didFinishPickingImage:(UIImage *)image
+                  editingInfo:(NSDictionary *)editingInfo
+{
+    
+}
 
 #pragma mark - Private methods
 - (void)configureDataForCell:(UITableViewCell *)cell message:(XMPPRoomMessageCoreDataStorageObject *)message {
@@ -451,6 +512,20 @@
     }
 }
 
+- (void)sendFile:(NSData *)fileData {
+    RKParams *params = [RKParams params];
+    NSString *name = [DeviceUtil generateUUID];
+    name = [name stringByAppendingString:@".png"];
+    [params setValue:name forParam:@"name"];
+    
+    fileName = [NSString stringWithFormat:@"photo_%@.png", [DateUtil currentDateStringWithFormat:@"yyyymmddhhmmss"]];
+    
+    //Create attachment
+    RKParamsAttachment *attchment = [params setData:fileData MIMEType:@"image/png" forParam:@"file"];
+    
+    [[RKClient sharedClient] post:@"/file_transfer.php" params:params delegate:self];
+}
+
 /*
  * Get Ban user list from server.
  */
@@ -541,5 +616,42 @@
         }
     }
     return visitorOccupants;
+}
+
+- (void)sendMessageWithFileURL:(NSString *)url {
+    NSString *bodyText = [NSString stringWithFormat:@"send file %@", fileName];
+    NSXMLElement *body = [NSXMLElement elementWithName:@"body" stringValue:bodyText];
+    
+    //Create file element
+    NSString *fullURL = [webServerName stringByAppendingPathComponent:url];
+    NSXMLElement *fileElement = [NSXMLElement elementWithName:@"file"];
+    [fileElement addAttributeWithName:@"name" stringValue:fileName];
+    [fileElement addAttributeWithName:@"url" stringValue:fullURL];
+    
+    XMPPMessage *message = [XMPPMessage message];
+    [message addAttributeWithName:@"to" stringValue:[roomJID full]];
+    [message addAttributeWithName:@"type" stringValue:@"groupchat"];
+    [message addChild:body];
+    [message addChild:fileElement];
+    
+    [[[XMPPHandler sharedInstance] xmppStream] sendElement:message];
+    
+}
+
+- (void)showImagePicker {
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    imagePickerController.delegate = self;
+    
+    [imagePickerController setAllowsEditing:YES];
+    
+    //Check PhotoLibrary available or not
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
+        imagePickerController.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+    }
+    else if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+        imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+    }
+    
+    [self presentModalViewController:imagePickerController animated:YES];
 }
 @end

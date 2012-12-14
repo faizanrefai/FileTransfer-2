@@ -16,11 +16,12 @@
 typedef enum {
     kSelectTypeNone,
     kSelectTypeInvite,
+    kSendFileType,
     kSelectTypeBan,
     kSelectTypeMute
 }UserSelectType;
 
-@interface RoomChatViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate, UIActionSheetDelegate, UITextFieldDelegate, SelectUserDelegate, XMPPRoomDelegate, OccupantsViewControllerDelegate> {
+@interface RoomChatViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate, UIActionSheetDelegate, UITextFieldDelegate, RKRequestDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, SelectUserDelegate, XMPPRoomDelegate, OccupantsViewControllerDelegate> {
     XMPPJID *roomJID;
     XMPPRoom *room;
     NSFetchedResultsController *messageFetchedResultsController;
@@ -28,6 +29,8 @@ typedef enum {
     UIActionSheet *actionSheet;
     UserSelectType selectType;
     NSArray *currentSelectedUsers;
+    NSString *fileName;
+    NSData *dataToSend;
 }
 
 @property (nonatomic, strong) IBOutlet UITableView *tableView;

@@ -115,7 +115,7 @@
     keyboardVisible = NO;
 }
 
-#pragma mark - 
+#pragma mark - RKRequest Delegate
 - (void)request:(RKRequest*)request didLoadResponse:(RKResponse*)response {  
     [MBProgressHUD hideHUDForView:self.view animated:YES];
     if ([request isGET]) {  

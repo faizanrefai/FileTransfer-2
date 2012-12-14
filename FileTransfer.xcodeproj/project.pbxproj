@@ -25,6 +25,7 @@
 		840EBD33165090FD0096DF97 /* ChatViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 840EBD32165090FD0096DF97 /* ChatViewCell.m */; };
 		840EBD48165091BF0096DF97 /* ChatViewCellFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 840EBD47165091BE0096DF97 /* ChatViewCellFactory.m */; };
 		840EBD4A165099AC0096DF97 /* View.xib in Resources */ = {isa = PBXBuildFile; fileRef = 840EBD49165099AB0096DF97 /* View.xib */; };
+		841151B8167ACB34001D18DB /* DateUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 841151B7167ACB34001D18DB /* DateUtil.m */; };
 		8421428F16708EC700BA86B9 /* SIFileTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8421428E16708EC700BA86B9 /* SIFileTransfer.m */; };
 		8426F77316721ED30065C5FC /* ImageDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8426F77216721ED30065C5FC /* ImageDetailViewController.m */; };
 		8426F775167221BB0065C5FC /* ImageDetailView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8426F774167221BB0065C5FC /* ImageDetailView.xib */; };
@@ -281,6 +282,8 @@
 		840EBD46165091BE0096DF97 /* ChatViewCellFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatViewCellFactory.h; sourceTree = "<group>"; };
 		840EBD47165091BE0096DF97 /* ChatViewCellFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewCellFactory.m; sourceTree = "<group>"; };
 		840EBD49165099AB0096DF97 /* View.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = View.xib; sourceTree = "<group>"; };
+		841151B6167ACB34001D18DB /* DateUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DateUtil.h; sourceTree = "<group>"; };
+		841151B7167ACB34001D18DB /* DateUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DateUtil.m; sourceTree = "<group>"; };
 		8421428D16708EC700BA86B9 /* SIFileTransfer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SIFileTransfer.h; sourceTree = "<group>"; };
 		8421428E16708EC700BA86B9 /* SIFileTransfer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SIFileTransfer.m; sourceTree = "<group>"; };
 		8426F77116721ED30065C5FC /* ImageDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageDetailViewController.h; sourceTree = "<group>"; };
@@ -930,6 +933,8 @@
 				8400412D167186360000D0D0 /* DeviceUtil.m */,
 				8426F776167228970065C5FC /* HUBUtil.h */,
 				8426F777167228970065C5FC /* HUBUtil.m */,
+				841151B6167ACB34001D18DB /* DateUtil.h */,
+				841151B7167ACB34001D18DB /* DateUtil.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1906,6 +1911,7 @@
 				84FDC221167582E60095B6DD /* FileTransferMessageRepository.m in Sources */,
 				84FDC229167594A10095B6DD /* FileTransferCell.m in Sources */,
 				844B11C61678285200165245 /* XMPPRoomOccupantCoreDataRepository.m in Sources */,
+				841151B8167ACB34001D18DB /* DateUtil.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

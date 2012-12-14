@@ -10,4 +10,5 @@
 
 @interface DeviceUtil : NSObject
 + (BOOL)isSimulator;
++ (NSString *)generateUUID;
 @end

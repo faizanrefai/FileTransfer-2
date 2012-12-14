@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
+#pragma makr - Web server
+extern NSString *const webServerName;
+
 extern NSString * const kStreamBareJIDString;
 extern NSString * const xmppHostName;
 extern NSString * const xmppConferenceHostName;

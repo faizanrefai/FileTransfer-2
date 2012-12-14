@@ -56,6 +56,8 @@
     UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:cellIdentify];
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentify];
+        cell.textLabel.font = [UIFont systemFontOfSize:14];
+        cell.textLabel.minimumFontSize = 10.0;
     }
     
     NSURL *url = [urlArray objectAtIndex:indexPath.row];

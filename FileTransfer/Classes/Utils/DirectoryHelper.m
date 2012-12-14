@@ -95,7 +95,7 @@
 
 + (BOOL)fileExistAtPath:(NSString *)path isDir:(BOOL)isDir {
     
-    if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir] &&isDir) {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir] &&!isDir) {
         return YES;
     }
     return NO;
