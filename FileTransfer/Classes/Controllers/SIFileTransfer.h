@@ -34,8 +34,9 @@
 - (id)initWithRequestId:(XMPPIQ *)iq xmppStream:(XMPPStream *)stream;
 
 - (void)sendRequestWithFileName:(NSString *)fileName
-                       fileSize:(int)size
+                       fileSize:(unsigned long)size
                        mineType:(NSString *)mineType;
 - (void)sendResponseResult;
 - (NSString *)fileName;
+- (NSInteger)fileSize;
 @end

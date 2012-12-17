@@ -26,6 +26,7 @@
 		840EBD48165091BF0096DF97 /* ChatViewCellFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 840EBD47165091BE0096DF97 /* ChatViewCellFactory.m */; };
 		840EBD4A165099AC0096DF97 /* View.xib in Resources */ = {isa = PBXBuildFile; fileRef = 840EBD49165099AB0096DF97 /* View.xib */; };
 		841151B8167ACB34001D18DB /* DateUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 841151B7167ACB34001D18DB /* DateUtil.m */; };
+		841151C2167B15D3001D18DB /* FileTransferViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 841151C1167B15D3001D18DB /* FileTransferViewCell.m */; };
 		8421428F16708EC700BA86B9 /* SIFileTransfer.m in Sources */ = {isa = PBXBuildFile; fileRef = 8421428E16708EC700BA86B9 /* SIFileTransfer.m */; };
 		8426F77316721ED30065C5FC /* ImageDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8426F77216721ED30065C5FC /* ImageDetailViewController.m */; };
 		8426F775167221BB0065C5FC /* ImageDetailView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8426F774167221BB0065C5FC /* ImageDetailView.xib */; };
@@ -198,6 +199,9 @@
 		84E6BEF0165550EA009A330B /* msn-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 84E6BEEE165550EA009A330B /* msn-icon.png */; };
 		84E6BEF1165550EA009A330B /* yahoo-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 84E6BEEF165550EA009A330B /* yahoo-icon.png */; };
 		84E6BEFD16555D75009A330B /* KeychainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E6BEFC16555D75009A330B /* KeychainItemWrapper.m */; };
+		84EBB2E1167EF896000B2E12 /* MUCFileTransferTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EBB2E0167EF895000B2E12 /* MUCFileTransferTask.m */; };
+		84EBB2E4167F0AFB000B2E12 /* XMPPRoomFileTransferMessageCoreDataStorageObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EBB2E3167F0AFB000B2E12 /* XMPPRoomFileTransferMessageCoreDataStorageObject.m */; };
+		84EBB2E7167F0B48000B2E12 /* MUCFileTransferController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EBB2E6167F0B47000B2E12 /* MUCFileTransferController.m */; };
 		84F0D84F1669B28700472A86 /* DirectoryHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 84F0D84E1669B28700472A86 /* DirectoryHelper.m */; };
 		84F0D8521669EEA700472A86 /* ListFilesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84F0D8511669EEA700472A86 /* ListFilesViewController.m */; };
 		84F0D858166A037F00472A86 /* ListFilesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84F0D857166A037F00472A86 /* ListFilesView.xib */; };
@@ -205,7 +209,7 @@
 		84F88F44164520FC005C329B /* RegisterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84F88F43164520FC005C329B /* RegisterViewController.m */; };
 		84FDC21E1675827F0095B6DD /* FileTransferMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FDC21D1675827F0095B6DD /* FileTransferMessage.m */; };
 		84FDC221167582E60095B6DD /* FileTransferMessageRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FDC220167582E60095B6DD /* FileTransferMessageRepository.m */; };
-		84FDC229167594A10095B6DD /* FileTransferCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FDC228167594A10095B6DD /* FileTransferCell.m */; };
+		84FDC229167594A10095B6DD /* OneToOneFileTransferCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FDC228167594A10095B6DD /* OneToOneFileTransferCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -284,6 +288,8 @@
 		840EBD49165099AB0096DF97 /* View.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = View.xib; sourceTree = "<group>"; };
 		841151B6167ACB34001D18DB /* DateUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DateUtil.h; sourceTree = "<group>"; };
 		841151B7167ACB34001D18DB /* DateUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DateUtil.m; sourceTree = "<group>"; };
+		841151C0167B15D3001D18DB /* FileTransferViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileTransferViewCell.h; sourceTree = "<group>"; };
+		841151C1167B15D3001D18DB /* FileTransferViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileTransferViewCell.m; sourceTree = "<group>"; };
 		8421428D16708EC700BA86B9 /* SIFileTransfer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SIFileTransfer.h; sourceTree = "<group>"; };
 		8421428E16708EC700BA86B9 /* SIFileTransfer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SIFileTransfer.m; sourceTree = "<group>"; };
 		8426F77116721ED30065C5FC /* ImageDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageDetailViewController.h; sourceTree = "<group>"; };
@@ -605,6 +611,12 @@
 		84E6BEEF165550EA009A330B /* yahoo-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "yahoo-icon.png"; sourceTree = "<group>"; };
 		84E6BEFB16555D75009A330B /* KeychainItemWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainItemWrapper.h; sourceTree = "<group>"; };
 		84E6BEFC16555D75009A330B /* KeychainItemWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeychainItemWrapper.m; sourceTree = "<group>"; };
+		84EBB2DF167EF895000B2E12 /* MUCFileTransferTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MUCFileTransferTask.h; sourceTree = "<group>"; };
+		84EBB2E0167EF895000B2E12 /* MUCFileTransferTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MUCFileTransferTask.m; sourceTree = "<group>"; };
+		84EBB2E2167F0AFB000B2E12 /* XMPPRoomFileTransferMessageCoreDataStorageObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMPPRoomFileTransferMessageCoreDataStorageObject.h; sourceTree = "<group>"; };
+		84EBB2E3167F0AFB000B2E12 /* XMPPRoomFileTransferMessageCoreDataStorageObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XMPPRoomFileTransferMessageCoreDataStorageObject.m; sourceTree = "<group>"; };
+		84EBB2E5167F0B47000B2E12 /* MUCFileTransferController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MUCFileTransferController.h; sourceTree = "<group>"; };
+		84EBB2E6167F0B47000B2E12 /* MUCFileTransferController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MUCFileTransferController.m; sourceTree = "<group>"; };
 		84F0D84D1669B28700472A86 /* DirectoryHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectoryHelper.h; sourceTree = "<group>"; };
 		84F0D84E1669B28700472A86 /* DirectoryHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DirectoryHelper.m; sourceTree = "<group>"; };
 		84F0D8501669EEA700472A86 /* ListFilesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListFilesViewController.h; sourceTree = "<group>"; };
@@ -617,8 +629,8 @@
 		84FDC21D1675827F0095B6DD /* FileTransferMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileTransferMessage.m; sourceTree = "<group>"; };
 		84FDC21F167582E60095B6DD /* FileTransferMessageRepository.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileTransferMessageRepository.h; sourceTree = "<group>"; };
 		84FDC220167582E60095B6DD /* FileTransferMessageRepository.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileTransferMessageRepository.m; sourceTree = "<group>"; };
-		84FDC227167594A10095B6DD /* FileTransferCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileTransferCell.h; sourceTree = "<group>"; };
-		84FDC228167594A10095B6DD /* FileTransferCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileTransferCell.m; sourceTree = "<group>"; };
+		84FDC227167594A10095B6DD /* OneToOneFileTransferCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneToOneFileTransferCell.h; sourceTree = "<group>"; };
+		84FDC228167594A10095B6DD /* OneToOneFileTransferCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneToOneFileTransferCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -711,8 +723,10 @@
 				840EBD2D165090C10096DF97 /* ChatViewCell */,
 				844DF5C916417E7100506985 /* OneToOneChatViewCell.h */,
 				844DF5CA16417E7100506985 /* OneToOneChatViewCell.m */,
-				84FDC227167594A10095B6DD /* FileTransferCell.h */,
-				84FDC228167594A10095B6DD /* FileTransferCell.m */,
+				84FDC227167594A10095B6DD /* OneToOneFileTransferCell.h */,
+				84FDC228167594A10095B6DD /* OneToOneFileTransferCell.m */,
+				841151C0167B15D3001D18DB /* FileTransferViewCell.h */,
+				841151C1167B15D3001D18DB /* FileTransferViewCell.m */,
 			);
 			name = CustomViewCell;
 			sourceTree = "<group>";
@@ -888,6 +902,10 @@
 				840041371671CE200000D0D0 /* FileTransferController.m */,
 				840041391671CE2C0000D0D0 /* FileTransferTask.h */,
 				8400413A1671CE2C0000D0D0 /* FileTransferTask.m */,
+				84EBB2DF167EF895000B2E12 /* MUCFileTransferTask.h */,
+				84EBB2E0167EF895000B2E12 /* MUCFileTransferTask.m */,
+				84EBB2E5167F0B47000B2E12 /* MUCFileTransferController.h */,
+				84EBB2E6167F0B47000B2E12 /* MUCFileTransferController.m */,
 				8426F77116721ED30065C5FC /* ImageDetailViewController.h */,
 				8426F77216721ED30065C5FC /* ImageDetailViewController.m */,
 			);
@@ -1280,6 +1298,8 @@
 				84DA1577163CE9CF00347BF9 /* XMPPRoom.xcdatamodeld */,
 				84DA1579163CE9CF00347BF9 /* XMPPRoomCoreDataStorage.h */,
 				84DA157A163CE9CF00347BF9 /* XMPPRoomCoreDataStorage.m */,
+				84EBB2E2167F0AFB000B2E12 /* XMPPRoomFileTransferMessageCoreDataStorageObject.h */,
+				84EBB2E3167F0AFB000B2E12 /* XMPPRoomFileTransferMessageCoreDataStorageObject.m */,
 				84DA157B163CE9CF00347BF9 /* XMPPRoomMessageCoreDataStorageObject.h */,
 				84DA157C163CE9CF00347BF9 /* XMPPRoomMessageCoreDataStorageObject.m */,
 				84DA157D163CE9CF00347BF9 /* XMPPRoomOccupantCoreDataStorageObject.h */,
@@ -1909,9 +1929,13 @@
 				8426F778167228970065C5FC /* HUBUtil.m in Sources */,
 				84FDC21E1675827F0095B6DD /* FileTransferMessage.m in Sources */,
 				84FDC221167582E60095B6DD /* FileTransferMessageRepository.m in Sources */,
-				84FDC229167594A10095B6DD /* FileTransferCell.m in Sources */,
+				84FDC229167594A10095B6DD /* OneToOneFileTransferCell.m in Sources */,
 				844B11C61678285200165245 /* XMPPRoomOccupantCoreDataRepository.m in Sources */,
 				841151B8167ACB34001D18DB /* DateUtil.m in Sources */,
+				841151C2167B15D3001D18DB /* FileTransferViewCell.m in Sources */,
+				84EBB2E1167EF896000B2E12 /* MUCFileTransferTask.m in Sources */,
+				84EBB2E4167F0AFB000B2E12 /* XMPPRoomFileTransferMessageCoreDataStorageObject.m in Sources */,
+				84EBB2E7167F0B48000B2E12 /* MUCFileTransferController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2002,7 +2026,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = palfad;
 				PROVISIONING_PROFILE = "7E654E7D-5661-4F17-A4A8-92968D4A46D8";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "7E654E7D-5661-4F17-A4A8-92968D4A46D8";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -2027,7 +2051,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = palfad;
 				PROVISIONING_PROFILE = "7E654E7D-5661-4F17-A4A8-92968D4A46D8";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "7E654E7D-5661-4F17-A4A8-92968D4A46D8";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

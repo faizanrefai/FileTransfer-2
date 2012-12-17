@@ -41,6 +41,13 @@
     [fileTransferTasks addObject:fileTrasnferTask];
 }
 
+- (void)addProgressView:(UIProgressView *)progressView forMessage:(FileTransferMessage *)message {
+    for (FileTransferTask *fileTransferTask in fileTransferTasks) {
+        if ([fileTransferTask containFileTransferMessage:message]) {
+            fileTransferTask.progressView = progressView;
+        }
+    }
+}
 #pragma mark - XMPPStream delegate
 - (BOOL)xmppStream:(XMPPStream *)sender didReceiveIQ:(XMPPIQ *)iq
 {
@@ -49,13 +56,15 @@
         XMPPJID *jid = [XMPPJID jidWithString:from];
         NSString *message = [NSString stringWithFormat:@"%@ send you a file", jid.user];
 
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Info" message:message completionBlock:^(NSUInteger buttonIndex, UIAlertView *alertView) {
-            if (buttonIndex == 1) {
-                FileTransferTask *fileTransferTask = [[FileTransferTask alloc] initWithStream:xmppStream fileTransferRequest:iq];
-                [fileTransferTasks addObject:fileTransferTask];
-            }
-        } cancelButtonTitle:@"Cancel" otherButtonTitles:@"Accept", nil];
-        [alert show];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Info" message:message completionBlock:^(NSUInteger buttonIndex, UIAlertView *alertView) {
+                if (buttonIndex == 1) {
+                    FileTransferTask *fileTransferTask = [[FileTransferTask alloc] initWithStream:xmppStream fileTransferRequest:iq];
+                    [fileTransferTasks addObject:fileTransferTask];
+                }
+            } cancelButtonTitle:@"Cancel" otherButtonTitles:@"Accept", nil];
+            [alert show];
+        });
         return YES;
     }
     return NO;

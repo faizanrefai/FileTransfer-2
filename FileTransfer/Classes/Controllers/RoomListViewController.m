@@ -54,6 +54,10 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)dealloc {
+    [newRoomViewController setDelegate:nil];
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -160,7 +164,7 @@
 }
 
 - (void)addNewRoom {
-    NewRoomViewController *newRoomViewController = [[NewRoomViewController alloc] init];
+    newRoomViewController = [[NewRoomViewController alloc] init];
     newRoomViewController.delegate = self;
     [self presentModalViewController:newRoomViewController animated:YES];
 }

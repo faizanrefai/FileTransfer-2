@@ -11,6 +11,7 @@
 #import "InBandByteStreams.h"
 #import "XMPPJID.h"
 #import "XMPPStream.h"
+#import "FileTransferMessage.h"
 
 @interface FileTransferTask : NSObject {
     SIFileTransfer *siFileTransfer;
@@ -18,13 +19,17 @@
     XMPPJID *jid;
     XMPPStream *xmppStream;
     NSData *dataToSend;
-    BOOL isSending;
-    BOOL showReceivedMessage;
     BOOL isClient;
+    float percent;
+    BOOL isSending;
+    UIProgressView *progressView;
+    FileTransferMessage *fileTransferMessage;
 }
+
+@property (nonatomic, strong) UIProgressView *progressView;
 
 - (id)initWithStream:(XMPPStream *)stream jid:(XMPPJID *)jid;
 - (id)initWithStream:(XMPPStream *)stream fileTransferRequest:(XMPPIQ *)iq;
 - (void)requestSendFileData:(NSData *)data fileName:(NSString *)fileName mineType:(NSString *)mineType;
-
+- (BOOL)containFileTransferMessage:(FileTransferMessage *)message;
 @end

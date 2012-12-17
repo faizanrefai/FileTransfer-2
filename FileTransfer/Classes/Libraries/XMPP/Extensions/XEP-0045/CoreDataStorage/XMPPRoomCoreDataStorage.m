@@ -605,6 +605,68 @@ static XMPPRoomCoreDataStorage *sharedInstance;
  * 
  * @see didInsertMessage:
 **/
+//- (void)insertMessage:(XMPPMessage *)message
+//             outgoing:(BOOL)isOutgoing
+//              forRoom:(XMPPRoom *)room
+//               stream:(XMPPStream *)xmppStream
+//{
+//	// Extract needed information
+//	
+//	XMPPJID *roomJID = room.roomJID;
+//	XMPPJID *messageJID = isOutgoing ? room.myRoomJID : [message from];
+//	
+//	NSDate *localTimestamp;
+//	NSDate *remoteTimestamp;
+//	
+//	if (isOutgoing)
+//	{
+//		localTimestamp = [[NSDate alloc] init];
+//		remoteTimestamp = nil;
+//	}
+//	else
+//	{
+//		remoteTimestamp = [message delayedDeliveryDate];
+//		if (remoteTimestamp) {
+//			localTimestamp = remoteTimestamp;
+//		}
+//		else {
+//			localTimestamp = [[NSDate alloc] init];
+//		}
+//	}
+//	
+//	NSString *messageBody = [[message elementForName:@"body"] stringValue];
+//	
+//	NSManagedObjectContext *moc = [self managedObjectContext];
+//	NSString *streamBareJidStr = [[self myJIDForXMPPStream:xmppStream] bare];
+//	
+//	NSEntityDescription *messageEntity = [self messageEntity:moc];
+//	
+//	// Add to database
+//	
+//	XMPPRoomMessageCoreDataStorageObject *roomMessage = (XMPPRoomMessageCoreDataStorageObject *)
+//	    [[NSManagedObject alloc] initWithEntity:messageEntity insertIntoManagedObjectContext:nil];
+//	
+//	roomMessage.message = message;
+//	roomMessage.roomJID = roomJID;
+//	roomMessage.jid = messageJID;
+//	roomMessage.nickname = [messageJID resource];
+//	roomMessage.body = messageBody;
+//	roomMessage.localTimestamp = localTimestamp;
+//	roomMessage.remoteTimestamp = remoteTimestamp;
+//	roomMessage.isFromMe = isOutgoing;
+//	roomMessage.streamBareJidStr = streamBareJidStr;
+//	
+//	[moc insertObject:roomMessage];      // Hook if subclassing XMPPRoomMessageCoreDataStorageObject (awakeFromInsert)
+//	[self didInsertMessage:roomMessage]; // Hook if subclassing XMPPRoomCoreDataStorage
+//}
+
+//hauc edit for handle file transer message
+/*
+ * <message type="group" from="room01@palfad.com/hauc">
+ * <body>Send file abc.png</body>
+ * <file url="http://exmaple.com/abc.png" name="abc.png"/>
+ * </message>
+ */
 - (void)insertMessage:(XMPPMessage *)message
              outgoing:(BOOL)isOutgoing
               forRoom:(XMPPRoom *)room
@@ -638,13 +700,37 @@ static XMPPRoomCoreDataStorage *sharedInstance;
 	
 	NSManagedObjectContext *moc = [self managedObjectContext];
 	NSString *streamBareJidStr = [[self myJIDForXMPPStream:xmppStream] bare];
+    
+    //hoanhx 20121214 --start
+    NSXMLElement *fileElement = [message elementForName:@"file"];
+    if (fileElement) {
+        [self setMessageEntityName:@"XMPPRoomFileTransferMessageCoreDataStorageObject"];
+        
+        NSString *remoteURL = [fileElement attributeStringValueForName:@"url"];
+        NSString *fileName = [fileElement attributeStringValueForName:@"name"];
+        NSInteger status = [fileElement attributeInt32ValueForName:@"status"];
+        
+        XMPPRoomFileTransferMessageCoreDataStorageObject *fileTransferMessage = [self messageForFileName:fileName roomJid:roomJID.full jid:messageJID.full xmppStreamBareJid:streamBareJidStr];
+        if (fileTransferMessage) {
+            fileTransferMessage.remoteURL = remoteURL;
+            fileTransferMessage.status = [NSNumber numberWithInt:status];
+            return;
+        }
+    }
+    else {
+        messageEntityName = NSStringFromClass([XMPPRoomMessageCoreDataStorageObject class]);
+    }
+    
+    
+    
+    //hoanhx 20121214 --end
 	
 	NSEntityDescription *messageEntity = [self messageEntity:moc];
 	
 	// Add to database
 	
 	XMPPRoomMessageCoreDataStorageObject *roomMessage = (XMPPRoomMessageCoreDataStorageObject *)
-	    [[NSManagedObject alloc] initWithEntity:messageEntity insertIntoManagedObjectContext:nil];
+    [[NSManagedObject alloc] initWithEntity:messageEntity insertIntoManagedObjectContext:nil];
 	
 	roomMessage.message = message;
 	roomMessage.roomJID = roomJID;
@@ -655,7 +741,20 @@ static XMPPRoomCoreDataStorage *sharedInstance;
 	roomMessage.remoteTimestamp = remoteTimestamp;
 	roomMessage.isFromMe = isOutgoing;
 	roomMessage.streamBareJidStr = streamBareJidStr;
-	
+    
+    //Hoanhx 20121214 --start
+    if (fileElement) {
+        NSString *remoteURL = [fileElement attributeStringValueForName:@"url"];
+        NSString *fileName = [fileElement attributeStringValueForName:@"name"];
+        NSInteger status = [fileElement attributeInt32ValueForName:@"status"];
+        
+        [(XMPPRoomFileTransferMessageCoreDataStorageObject *)roomMessage setFileName:fileName];
+        [(XMPPRoomFileTransferMessageCoreDataStorageObject *)
+         roomMessage setRemoteURL:remoteURL];
+        [(XMPPRoomFileTransferMessageCoreDataStorageObject *)roomMessage setStatus:[NSNumber numberWithInteger:status]];
+    }
+    //Hoanhx 20121214 --end
+    
 	[moc insertObject:roomMessage];      // Hook if subclassing XMPPRoomMessageCoreDataStorageObject (awakeFromInsert)
 	[self didInsertMessage:roomMessage]; // Hook if subclassing XMPPRoomCoreDataStorage
 }
@@ -1018,5 +1117,41 @@ static XMPPRoomCoreDataStorage *sharedInstance;
 		[self clearAllOccupantsFromRoom:roomJID];
 	}];
 }
+
+
+//Hoanha 20121214 --start
+- (XMPPRoomFileTransferMessageCoreDataStorageObject *)messageForFileName:(NSString *)fileName roomJid:(NSString *)roomJid jid:(NSString *)jid xmppStreamBareJid:(NSString *)streamBareJidStr{
+	
+	NSManagedObjectContext *moc = [self managedObjectContext];
+	NSEntityDescription *messageEntity = [self messageEntity:moc];
+	
+	
+	
+	NSString *predicateFormat = @"fileName == %@ "
+    @"AND jidStr == %@ "
+    @"AND streamBareJidStr == %@ ";	
+	NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateFormat,
+                              fileName, jid, streamBareJidStr];
+	
+	NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+	[fetchRequest setEntity:messageEntity];
+	[fetchRequest setPredicate:predicate];
+	[fetchRequest setFetchLimit:1];
+    
+	NSError *error = nil;
+	NSArray *results = [moc executeFetchRequest:fetchRequest error:&error];
+	
+	if (error)
+	{
+		XMPPLogError(@"%@: %@ - Fetch error: %@", THIS_FILE, THIS_METHOD, error);
+	}
+	
+	if ([results count] > 0) {
+        return [results objectAtIndex:0];
+    }
+    return nil;
+}
+//Hoanha 20121214 --end
+
 
 @end

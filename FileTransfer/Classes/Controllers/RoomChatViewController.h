@@ -31,6 +31,8 @@ typedef enum {
     NSArray *currentSelectedUsers;
     NSString *fileName;
     NSData *dataToSend;
+    UIProgressView *progressView;
+    NSData *fileToSend;
 }
 
 @property (nonatomic, strong) IBOutlet UITableView *tableView;

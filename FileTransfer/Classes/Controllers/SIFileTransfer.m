@@ -22,7 +22,7 @@
 {
 	if ([super activate:aXmppStream])
 	{
-        responseTracker = [[XMPPIDTracker alloc] initWithDispatchQueue:moduleQueue];
+        //responseTracker = [[XMPPIDTracker alloc] initWithDispatchQueue:moduleQueue];
 		return YES;
 	}
 	
@@ -51,20 +51,18 @@
 
 
 - (id)initWithXMPPStream:(XMPPStream *)stream jid:(XMPPJID *)aJid {
-    self = [self initWithDispatchQueue:dispatch_get_main_queue()];
+    self = [super initWithDispatchQueue:dispatch_get_current_queue()];
     if (self) {
         jid = aJid;
         [self activate:stream];
-        [xmppStream addDelegate:self delegateQueue:dispatch_get_main_queue()];
     }
     return self;
 }
 
 - (id)initWithRequestId:(XMPPIQ *)iq xmppStream:(XMPPStream *)stream {
-    self = [self initWithDispatchQueue:dispatch_get_main_queue()];
+    self = [super initWithDispatchQueue:dispatch_get_current_queue()];
     if (self) {
         [self activate:stream];
-        [xmppStream addDelegate:self delegateQueue:dispatch_get_main_queue()];
         [self partDataFromRequest:iq];
     }
     return self;
@@ -90,7 +88,7 @@
 //</si>
 //</iq>
 - (void)sendRequestWithFileName:(NSString *)name
-                       fileSize:(int)size
+                       fileSize:(unsigned long)size
                        mineType:(NSString *)type {
     fileName = name;
     fileSize = size;
@@ -112,7 +110,7 @@
         
         NSXMLElement *fileElement = [NSXMLElement elementWithName:@"file" xmlns:@"http://jabber.org/protocol/si/profile/file-transfer"];
         [fileElement addAttributeWithName:@"name" stringValue:fileName];
-        [fileElement addAttributeWithName:@"size" stringValue:[NSString stringWithFormat:@"%d", fileSize]];
+        [fileElement addAttributeWithName:@"size" stringValue:[NSString stringWithFormat:@"%u", fileSize]];
         
         NSXMLElement *featureElement = [NSXMLElement elementWithName:@"feature" xmlns:@"http://jabber.org/protocol/feature-neg"];
         
@@ -212,6 +210,9 @@
     return fileName;
 }
 
+- (NSInteger)fileSize {
+    return fileSize;
+}
 #pragma mark - XMPPStream delegate
 - (BOOL)xmppStream:(XMPPStream *)sender didReceiveIQ:(XMPPIQ *)iq
 {
@@ -246,7 +247,7 @@
     
     NSXMLElement *fileElement = [siElement elementForName:@"file"];
     fileName = [fileElement attributeStringValueForName:@"name"];
-    fileSize = [fileElement attributeInt32ValueForName:@"size"];
+    fileSize = [fileElement attributeUnsignedIntegerValueForName:@"size"];
 }
 
 @end

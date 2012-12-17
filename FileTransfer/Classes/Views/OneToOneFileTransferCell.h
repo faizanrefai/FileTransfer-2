@@ -9,12 +9,14 @@
 #import <UIKit/UIKit.h>
 #import "FileTransferMessage.h"
 
-@interface FileTransferCell : UITableViewCell {
+@interface OneToOneFileTransferCell : UITableViewCell {
     UIImageView *imageView;
     UILabel *fileNameLabel;
-    UILabel *statusLabel;
+    UIProgressView *progressView;
+    UIActivityIndicatorView *indicatorView;
 }
 
 @property (nonatomic, strong) FileTransferMessage *message;
+@property (nonatomic, strong) UIProgressView *progressView;
 
 @end

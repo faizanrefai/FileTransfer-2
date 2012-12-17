@@ -53,7 +53,8 @@
 }
 
 - (void)dealloc {
-    [room removeDelegate:self];
+    [room removeDelegate:self delegateQueue:dispatch_get_main_queue()];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - IBAction methods
@@ -157,8 +158,16 @@
     }
     else {
         XMPPStream *xmppStream = [[XMPPHandler sharedInstance] xmppStream];
-        XMPPRoomCoreDataStorage *xmppRoomCoreDataStorage = [[XMPPHandler sharedInstance] xmppRoomCoreDataStore];
-        room = [[XMPPRoom alloc] initWithRoomStorage:xmppRoomCoreDataStorage jid:roomJID];
+        //XMPPRoomCoreDataStorage *xmppRoomCoreDataStorage = [[XMPPHandler sharedInstance] xmppRoomCoreDataStore];
+        
+        room = [[RoomChatRepository sharedInstance] roomWithJID:roomJID];
+        if (room == nil) {
+            
+            XMPPRoomCoreDataStorage *xmppRoomCoreDataStorage = [[XMPPHandler sharedInstance] xmppRoomCoreDataStore];
+            room = [[XMPPRoom alloc] initWithRoomStorage:xmppRoomCoreDataStorage jid:roomJID];
+        }
+        
+        //room = [[XMPPRoom alloc] initWithRoomStorage:xmppRoomCoreDataStorage jid:roomJID];
         [room addDelegate:self delegateQueue:dispatch_get_main_queue()];
         [room activate:xmppStream];
         [room joinRoomUsingNickname:[XMPPUtil myUsername] history:nil];
@@ -167,13 +176,30 @@
 }
 
 - (BOOL)ownerRoom:(XMPPRoom *)xmppRoom {
-    XMPPRoomCoreDataStorage *xmppRoomCoreDataStorage = [XMPPRoomCoreDataStorage sharedInstance];
-    NSManagedObjectContext *context = [[XMPPHandler sharedInstance] managedObjectContext_room];
-    XMPPStream *stream = [[XMPPHandler sharedInstance] xmppStream];
-    XMPPRoomOccupantCoreDataStorageObject *occupant = [xmppRoomCoreDataStorage occupantForJID:xmppRoom.myRoomJID stream:stream inContext:context];
-    if ([occupant.affiliation isEqualToString:@"owner"]) {
-        return YES;
+    NSManagedObjectContext *moc = [[XMPPHandler sharedInstance] managedObjectContext_room];
+    
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"XMPPRoomOccupantCoreDataStorageObject"
+                                              inManagedObjectContext:moc];
+    
+    NSSortDescriptor *sd1 = [[NSSortDescriptor alloc] initWithKey:@"nickname" ascending:YES];
+    NSArray *sortDescriptors = [NSArray arrayWithObjects:sd1, nil];
+    
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSString *streamBarJid = [[NSUserDefaults standardUserDefaults] objectForKey:kStreamBareJIDString];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"streamBareJidStr=%@ and roomJIDStr=%@ and jidStr=%@", streamBarJid, room.roomJID.bare, room.myRoomJID.full];
+    [fetchRequest setPredicate:predicate];
+    [fetchRequest setEntity:entity];
+    [fetchRequest setSortDescriptors:sortDescriptors];        
+    NSArray *items = [moc executeFetchRequest:fetchRequest error:nil];
+    
+    if ([items count] > 0) {
+        XMPPRoomOccupantCoreDataStorageObject *occupant = [items objectAtIndex:0];
+        if ([occupant.affiliation isEqualToString:@"owner"]) {
+            return YES;
+        }
     }
+    
     return NO;
 }
 
@@ -185,4 +211,6 @@
     });
 
 }
+
+
 @end

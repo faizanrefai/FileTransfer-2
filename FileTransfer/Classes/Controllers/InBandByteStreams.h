@@ -23,6 +23,7 @@
     XMPPJID *jid;
     int currentSeq;
     NSString *uuid;
+    NSInteger dataReceiveLength;
     XMPPIDTracker *responseTracker;
     NSMutableDictionary *dataDictionary;
 }
@@ -48,5 +49,9 @@
 - (void)inBandByteStreams:(InBandByteStreams *)byStream didStartReceiveFile:(NSString *)filePath;
 - (void)inBandByteStreams:(InBandByteStreams *)byStream didFinishSendFile:(NSString *)filePath;
 - (void)inBandByteStreams:(InBandByteStreams *)byStream didFinishReceiveFile:(NSData *)data;
+
+- (void)inBandByteStreams:(InBandByteStreams *)byStream didSendDataLength:(NSInteger)percent;
+- (void)inBandByteStreams:(InBandByteStreams *)byStream didReceiveDataLength:(NSInteger)percent;
+
 
 @end

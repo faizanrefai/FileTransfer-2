@@ -6,6 +6,8 @@
 #import "XMPPRoomMessageCoreDataStorageObject.h"
 #import "XMPPRoomOccupantCoreDataStorageObject.h"
 #import "XMPPCoreDataStorage.h"
+//Hoanhx 20121214 --
+#import "XMPPRoomFileTransferMessageCoreDataStorageObject.h"
 
 
 @interface XMPPRoomCoreDataStorage : XMPPCoreDataStorage <XMPPRoomStorage>

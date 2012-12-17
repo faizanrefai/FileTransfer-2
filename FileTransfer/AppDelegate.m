@@ -10,8 +10,6 @@
 #import <CoreData/CoreData.h>
 #import <RestKit/RestKit.h> 
 #import "DirectoryHelper.h"
-#import "DDLog.h"
-#import "DDTTYLogger.h"
 #import "XMPPHandler.h"
 #import "FileTransferController.h"
 #import "AppConstants.h"
@@ -24,7 +22,6 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [RKClient clientWithBaseURLString:webServerName];
-    [DDLog addLogger:[DDTTYLogger sharedInstance]];
     //Create folder to save file
     [DirectoryHelper createSaveFilesDirectory];
     [DirectoryHelper createSentFilesDirectory];

@@ -27,6 +27,8 @@ NSString * const didXMPPAuthenticateFail = @"didXMPPAuthenticateFail";
 NSString * const xmppDidDisconnect = @"xmppDidDisconnect";
 NSString * const xmppDidGetRoomList = @"xmppDidGetRoomList";
 
+NSString * const didDownloadFileTransferGroup = @"didDownloadFileTransferGroup";
+
 #pragma mark - Keychain identify
 NSString * const kXMPPPasswordKeychainIdentify = @"XMPPPasswordKeychainIdentify";
 NSString * const kYahooPasswordKeychainIdentify = @"YahooKeychainIdentify";

@@ -11,7 +11,7 @@
 
 @interface RoomListViewController : UIViewController <NewRoomDelegate, UITableViewDataSource, UITableViewDelegate>{
     NSArray __strong *roomList;
-    
+    NewRoomViewController *newRoomViewController;
 }
 
 @property (nonatomic, strong) IBOutlet UITableView *tableView;

@@ -97,6 +97,9 @@
     else if ([message isKindOfClass:[XMPPRoomMessageCoreDataStorageObject class]]){
         [self layoutSubviewsForMUCChat:(XMPPRoomMessageCoreDataStorageObject *)message];
     }
+    else {
+        [self layoutSubviewsForMUCChat:(XMPPRoomMessageCoreDataStorageObject *)message];    
+    }
 }
 
 - (void)setMessage:(NSManagedObject *)chatMessage {

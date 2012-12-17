@@ -10,13 +10,6 @@
 #import <CoreData/CoreData.h>
 #import "XMPPMessageOneToOneChat.h"
 
-typedef enum {
-    kFileTransferStatusNone,
-    kFileTransferStatusSending,
-    kFileTransferStatusReceiving,
-    kFileTransferStatusFail,
-    kFileTransferStatusSuccess
-}FileTransferStatus;
 
 @interface FileTransferMessage : XMPPMessageOneToOneChat
 

@@ -257,7 +257,10 @@ static const int ddLogLevel = LOG_LEVEL_INFO;
 	[xmppvCardTempModule   deactivate];
 	[xmppvCardAvatarModule deactivate];
 	[xmppCapabilities      deactivate];
-	
+    //
+	[xmppDiscoRoom deactivate];
+    [xmppRoom deactivate];
+    
 	[xmppStream disconnect];
 	
 	xmppStream = nil;

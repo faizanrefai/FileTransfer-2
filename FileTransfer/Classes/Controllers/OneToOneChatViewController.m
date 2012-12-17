@@ -15,7 +15,7 @@
 #import "DirectoryHelper.h"
 #import "FileTransferController.h"
 #import "FileTransferMessage.h"
-#import "FileTransferCell.h"
+#import "OneToOneFileTransferCell.h"
 
 #define FILE_TRANSFER_CELL_HEIGH 100
 
@@ -133,13 +133,13 @@
     else {
         static NSString *CellIdentifier = @"FileTransferCell";
         
-        cell = (FileTransferCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        cell = (OneToOneFileTransferCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
         if (cell == nil)
         {
-            cell = [[FileTransferCell alloc] initWithStyle:UITableViewCellStyleDefault
+            cell = [[OneToOneFileTransferCell alloc] initWithStyle:UITableViewCellStyleDefault
                                                reuseIdentifier:CellIdentifier];
         }
-        [(FileTransferCell *)cell setMessage:(FileTransferMessage *)message];
+        [(OneToOneFileTransferCell *)cell setMessage:(FileTransferMessage *)message];
     }
 	return cell;
 }
@@ -395,7 +395,7 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info
 - (NSString *)currentDateString {
     NSDate *date = [NSDate date];
     NSDateFormatter *formater = [[NSDateFormatter alloc] init];
-    [formater setDateFormat:@"yyyymmddhhmmss"];
+    [formater setDateFormat:@"yyyyMMddhhmmss"];
     NSString *string = [formater stringFromDate:date];
     return string;
 }

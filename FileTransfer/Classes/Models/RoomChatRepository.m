@@ -11,6 +11,7 @@
 #import "XMPPMessage+XEP0045.h"
 #import "DirectoryHelper.h"
 #import "XMPPUtil.h"
+#import "AppConstants.h"
 
 @interface RoomChatRepository ()
 - (void)downloadFileWithURL:(NSString *)url;
@@ -78,6 +79,8 @@
 {
 	// This method is invoked on the moduleQueue.
 	
+    return;
+    
 	XMPPJID *from = [message from];
     if ([from.resource isEqualToString:[XMPPUtil myUsername]]) {
         return;
@@ -122,7 +125,7 @@
             NSError *error = nil;
             [data writeToFile:path options:NSDataWritingAtomic error:&error];
             if (!error) {
-                
+                [[NSNotificationCenter defaultCenter] postNotificationName:didDownloadFileTransferGroup object:nil];
             }
         }
     });

@@ -19,6 +19,10 @@
 #import "DeviceUtil.h"
 #import "DateUtil.h"
 #import "DirectoryHelper.h"
+#import "FileTransferViewCell.h"
+#import "EnumTypes.h"
+#import "MUCFileTransferController.h"
+#import "MUCFileTransferTask.h"
 
 #import <RestKit/RestKit.h>
 
@@ -26,6 +30,7 @@
 - (void)configureDataForCell:(UITableViewCell *)cell message:(XMPPRoomMessageCoreDataStorageObject *)message;
 - (void)keyboardDidShow:(NSNotification *)notification;
 - (void)keyboardDidHide:(NSNotification *)notification;
+- (void)didDownloadFileTransferGroup:(NSNotification *)notification;
 - (void)joinRoom;
 - (void)showActionSheet;
 - (void)exitRoom;
@@ -40,8 +45,9 @@
 - (NSArray *)jidsFromRoomOccupants:(NSArray *)occupants;
 - (NSArray *)occupantsInRoom;
 - (NSArray *)visitorOccupantInRoom;
-- (void)sendMessageWithFileURL:(NSString *)url;
+- (void)sendMessageWithFileURL:(NSString *)url status:(FileTransferStatus)status;
 - (void)showImagePicker;
+- (void)configureFileTransferCell:(FileTransferViewCell *)cell forMessage:(XMPPRoomFileTransferMessageCoreDataStorageObject *)message;
 @end
 
 @implementation RoomChatViewController
@@ -80,6 +86,11 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector (keyboardDidHide:)
                                                  name: UIKeyboardDidHideNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector (didDownloadFileTransferGroup:)
+                                                 name: didDownloadFileTransferGroup object:nil];
+
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -177,20 +188,46 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     XMPPRoomMessageCoreDataStorageObject *message = [[[self messageFetchedResultsController] fetchedObjects] objectAtIndex:indexPath.row];
+    if ([message isKindOfClass:[XMPPRoomFileTransferMessageCoreDataStorageObject class]]) {
+        return [FileTransferViewCell heightForCellWithText:message.body];
+    }
     return [ChatViewCell heightForCellWithText:message.body];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *CellIdentifier = @"ChatViewCell";
+    NSManagedObject *message = [[[self messageFetchedResultsController] fetchedObjects] objectAtIndex:indexPath.row];
+    static NSString *CellIdentifier;
+    BOOL fileTransferMessage;
+    if ([message isKindOfClass:[XMPPRoomFileTransferMessageCoreDataStorageObject class]]) {
+        CellIdentifier = @"FileTransferViewCell";
+        fileTransferMessage = YES;
+    }
+    else {
+        CellIdentifier = @"ChatViewCell";
+        fileTransferMessage = NO;
+    }
 	
-	ChatViewCell *cell = (ChatViewCell *)[self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+	UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if (cell == nil)
 	{
-		cell = [[ChatViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+        if (fileTransferMessage) {
+            cell = [[FileTransferViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                       reuseIdentifier:CellIdentifier];
+        }
+        else {
+            cell = [[ChatViewCell alloc] initWithStyle:UITableViewCellStyleDefault
                                            reuseIdentifier:CellIdentifier];
+        }
 	}
-    NSManagedObject *message = [[[self messageFetchedResultsController] fetchedObjects] objectAtIndex:indexPath.row];
-    cell.message = message;
+
+    if (fileTransferMessage) {
+        [(FileTransferViewCell *)cell setMessage:message];
+        [self configureFileTransferCell:cell forMessage:(XMPPRoomFileTransferMessageCoreDataStorageObject *)message];
+    }
+    else {
+        [(ChatViewCell *)cell setMessage:message];
+    }
+    
     return cell;
 }
 
@@ -348,7 +385,7 @@
         if (!error) {
             
         }
-        [self sendMessageWithFileURL:jsonString];
+        [self sendMessageWithFileURL:jsonString status:kFileTransferStatusSending];
     }
 }
 
@@ -356,6 +393,22 @@
     [ShowMessage showInfoMessageWithTitle:@"Error" message:@"send file fail!" type:kMessageTypeError inView:self.view];
 }
 
+- (void)request:(RKRequest *)request
+didSendBodyData:(NSInteger)bytesWritten
+totalBytesWritten:(NSInteger)totalBytesWritten
+totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite {
+    progressView.progress = totalBytesWritten/totalBytesExpectedToWrite;
+    if ([request isKindOfClass:[RKObjectLoader class]]){
+    
+    }
+}
+
+- (void)request:(RKRequest *)request didReceiveData:(NSInteger)bytesReceived totalBytesReceived:(NSInteger)totalBytesReceived totalBytesExpectedToReceive:(NSInteger)totalBytesExpectedToReceive {
+    if ([request isKindOfClass:[RKObjectLoader class]]){
+        
+    }
+}
+         
 #pragma mark -
 #pragma mark - UIImagePickerController delegate
 //Tells the delegate that the user picked a still image or movie.
@@ -454,6 +507,12 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info
 
 }
 
+- (void)didDownloadFileTransferGroup:(NSNotification *)notification {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[self tableView] reloadData];        
+    });
+}
+
 - (void)joinRoom {
     room = [[RoomChatRepository sharedInstance] roomWithJID:self.roomJID];
     if (room == nil) {
@@ -513,17 +572,22 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info
 }
 
 - (void)sendFile:(NSData *)fileData {
-    RKParams *params = [RKParams params];
     NSString *name = [DeviceUtil generateUUID];
     name = [name stringByAppendingString:@".png"];
-    [params setValue:name forParam:@"name"];
-    
-    fileName = [NSString stringWithFormat:@"photo_%@.png", [DateUtil currentDateStringWithFormat:@"yyyymmddhhmmss"]];
-    
-    //Create attachment
-    RKParamsAttachment *attchment = [params setData:fileData MIMEType:@"image/png" forParam:@"file"];
-    
-    [[RKClient sharedClient] post:@"/file_transfer.php" params:params delegate:self];
+    fileName = [NSString stringWithFormat:@"photo_%@.png", [DateUtil currentDateStringWithFormat:@"yyyyMMddhhmmss"]];
+//    RKParams *params = [RKParams params];
+//    NSString *name = [DeviceUtil generateUUID];
+//    name = [name stringByAppendingString:@".png"];
+//    [params setValue:name forParam:@"name"];
+//    
+//    fileName = [NSString stringWithFormat:@"photo_%@.png", [DateUtil currentDateStringWithFormat:@"yyyyMMddhhmmss"]];
+//    
+//    //Create attachment
+//    RKParamsAttachment *attchment = [params setData:fileData MIMEType:@"image/png" forParam:@"file"];
+//    
+//    [[RKClient sharedClient] post:@"/file_transfer.php" params:params delegate:self];
+    [self sendMessageWithFileURL:nil status:kFileTransferStatusSending];
+    dataToSend = fileData;
 }
 
 /*
@@ -618,16 +682,20 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info
     return visitorOccupants;
 }
 
-- (void)sendMessageWithFileURL:(NSString *)url {
+- (void)sendMessageWithFileURL:(NSString *)url status:(FileTransferStatus)status{
     NSString *bodyText = [NSString stringWithFormat:@"send file %@", fileName];
     NSXMLElement *body = [NSXMLElement elementWithName:@"body" stringValue:bodyText];
     
     //Create file element
-    NSString *fullURL = [webServerName stringByAppendingPathComponent:url];
     NSXMLElement *fileElement = [NSXMLElement elementWithName:@"file"];
     [fileElement addAttributeWithName:@"name" stringValue:fileName];
-    [fileElement addAttributeWithName:@"url" stringValue:fullURL];
-    
+
+    if (url) {
+        NSString *fullURL = [webServerName stringByAppendingPathComponent:url];
+        [fileElement addAttributeWithName:@"url" stringValue:fullURL];
+    }
+
+    [fileElement addAttributeWithName:@"status" stringValue:[NSString stringWithFormat:@"%d", status]];    
     XMPPMessage *message = [XMPPMessage message];
     [message addAttributeWithName:@"to" stringValue:[roomJID full]];
     [message addAttributeWithName:@"type" stringValue:@"groupchat"];
@@ -635,6 +703,7 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info
     [message addChild:fileElement];
     
     [[[XMPPHandler sharedInstance] xmppStream] sendElement:message];
+    
     
 }
 
@@ -654,4 +723,36 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info
     
     [self presentModalViewController:imagePickerController animated:YES];
 }
+
+- (void)configureFileTransferCell:(FileTransferViewCell *)cell forMessage:(XMPPRoomFileTransferMessageCoreDataStorageObject *)message {
+    
+    MUCFileTransferTask *fileTransferTask = [[MUCFileTransferController sharedInstance] fileTransferTaskForMessage:message];
+    
+    if (message.status.integerValue == kFileTransferStatusSending) {
+        if (fileTransferTask == nil) {
+            fileTransferTask = [[MUCFileTransferController sharedInstance] createFileTransferTaskWithMessage:message];
+            if (message.fromMe) {
+                [fileTransferTask sendFileData:dataToSend];
+            }
+
+        }
+        fileTransferTask.progressView = cell.progressView;
+
+    }
+    else if (message.status.integerValue == kFileTransferStatusSuccess) {
+        if (fileTransferTask == nil) {
+            fileTransferTask = [[MUCFileTransferController sharedInstance] createFileTransferTaskWithMessage:message];
+        }        
+        if (message.fromMe) {
+            NSString *path = [DirectoryHelper savedFilesDirectory];
+            path = [DirectoryHelper sentFilesDirectory];
+            path = [path stringByAppendingPathComponent:message.fileName];
+            if (![DirectoryHelper fileExistAtPath:path isDir:NO]) {
+                [fileTransferTask recevieFile];
+            }
+        }
+        fileTransferTask.progressView = cell.progressView;
+    }
+}
+
 @end

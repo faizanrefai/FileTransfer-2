@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "XMPPStream.h"
+#import "FileTransferMessage.h"
 
 @interface FileTransferController : NSObject <UIAlertViewDelegate>{
     XMPPStream *xmppStream;
@@ -17,4 +18,5 @@
 + (FileTransferController *)sharedInstance;
 
 - (void)sendFileData:(NSData *)data fileName:(NSString *)fileName mineType:(NSString *)mineType toJID:(XMPPJID *)jid;
+- (void)addProgressView:(UIProgressView *)progressView forMessage:(FileTransferMessage *)message;
 @end

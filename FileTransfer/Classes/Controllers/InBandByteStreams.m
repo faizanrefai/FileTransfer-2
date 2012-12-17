@@ -47,10 +47,9 @@
 }
 
 - (id)initWithXMPPStream:(XMPPStream *)stream jid:(XMPPJID *)aJid {
-    self = [self initWithDispatchQueue:dispatch_get_main_queue()];
+    self = [super initWithDispatchQueue:dispatch_get_current_queue()];
     if (self) {
         [self activate:stream];
-        [xmppStream addDelegate:self delegateQueue:dispatch_get_main_queue()];
         jid = aJid;
         dataDictionary = [[NSMutableDictionary alloc] init];
     }
@@ -58,10 +57,9 @@
 }
 
 - (id)initWithRequestId:(XMPPIQ *)iq xmppStream:(XMPPStream *)stream {
-    self = [self initWithDispatchQueue:dispatch_get_main_queue()];
+    self = [super initWithDispatchQueue:dispatch_get_current_queue()];
     if (self) {
         [self activate:stream];
-        [xmppStream addDelegate:self delegateQueue:dispatch_get_main_queue()];
         [self partDataInIqRequest:iq];
         dataDictionary = [[NSMutableDictionary alloc] init];
     }
@@ -81,22 +79,22 @@
 }
 
 - (void)sendFileData:(NSData *)data {
-    MBProgressHUD *hub = [[MBProgressHUD alloc] initWithView:[[[UIApplication sharedApplication] windows] lastObject]];
-    [hub showAnimated:YES whileExecutingBlock:^{
-        NSUInteger length = [data length];
-        NSUInteger offset = 0;
-        [multicastDelegate inBandByStreams:self didStartSendFile:nil];
-        do {
-            NSUInteger thisChunckSize = length - offset > BLOK_ZIE ? BLOK_ZIE : length - offset;
-            NSData *chuck = [NSData dataWithBytesNoCopy:(char *)[data bytes] + offset length:thisChunckSize freeWhenDone:NO];
-            NSString *base64DataString = [chuck base64EncodedString];
-            [self sendData:base64DataString withSeq:currentSeq++];
-            offset += thisChunckSize;
-            
-        } while (offset < length);
-        [self sendCloseStream];
-        [multicastDelegate inBandByteStreams:self didFinishSendFile:nil];
-    }];
+    NSUInteger length = [data length];
+    NSUInteger offset = 0;
+    [multicastDelegate inBandByStreams:self didStartSendFile:nil];
+    do {
+        NSUInteger thisChunckSize = length - offset > BLOK_ZIE ? BLOK_ZIE : length - offset;
+        NSData *chuck = [NSData dataWithBytesNoCopy:(char *)[data bytes] + offset length:thisChunckSize freeWhenDone:NO];
+        NSString *base64DataString = [chuck base64EncodedString];
+        [self sendData:base64DataString withSeq:currentSeq++];
+        offset += thisChunckSize;
+        
+        [multicastDelegate inBandByteStreams:self didSendDataLength:offset];
+        
+    } while (offset < length);
+    [self sendCloseStream];
+    [multicastDelegate inBandByteStreams:self didFinishSendFile:nil];
+
     
 }
 //<iq from='romeo@montague.net/orchard'
@@ -197,6 +195,9 @@
 #pragma mark - XMPPStream delegate
 - (BOOL)xmppStream:(XMPPStream *)sender didReceiveIQ:(XMPPIQ *)iq {
     NSXMLElement *dataElement = [iq elementForName:@"data"];
+    if ([iq isErrorIQ]) {
+        return NO;
+    }
     if (dataElement) {
         NSString *sidString = [dataElement attributeStringValueForName:@"sid"];
         if ([sidString isEqualToString:sid]) {
@@ -207,7 +208,10 @@
             }
             
             NSString *data = [dataElement stringValue];
-            [dataDictionary setValue:data forKey:seq];
+            NSData *realData = [NSData dataFromBase64String:data];
+            [dataDictionary setValue:realData forKey:seq];
+            dataReceiveLength += realData.length;
+            [multicastDelegate inBandByteStreams:self didReceiveDataLength:dataReceiveLength];
         }
     }
     
@@ -219,7 +223,7 @@
         NSData *data = [self dataReceived];
         [multicastDelegate inBandByteStreams:self didFinishReceiveFile:data];
     }
-    return NO;
+    return YES;
 }
 
 #pragma mark - Private
@@ -309,7 +313,8 @@
     NSArray *keys = [dataDictionary allKeys];
     for (int i=0; i<keys.count; i++) {
         NSString *keyString = [NSString stringWithFormat:@"%d", i];
-        NSData *data = [NSData dataFromBase64String:[dataDictionary objectForKey:keyString]];        
+        NSData *data = [dataDictionary objectForKey:keyString];
+        //NSData *data = [NSData dataFromBase64String:[dataDictionary objectForKey:keyString]];
         [mutableData appendData:data];
     }
     return mutableData;

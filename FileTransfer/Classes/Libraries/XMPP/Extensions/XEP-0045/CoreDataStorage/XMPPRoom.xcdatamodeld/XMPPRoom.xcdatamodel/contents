@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="878" systemVersion="11C74" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1811" systemVersion="11E2620" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="XMPPRoomFileTransferMessageCoreDataStorageObject" representedClassName="XMPPRoomFileTransferMessageCoreDataStorageObject" parentEntity="XMPPRoomMessageCoreDataStorageObject" syncable="YES">
+        <attribute name="fileName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="localURL" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="remoteURL" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+    </entity>
     <entity name="XMPPRoomMessageCoreDataStorageObject" representedClassName="XMPPRoomMessageCoreDataStorageObject" syncable="YES">
         <attribute name="body" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="fromMe" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
@@ -31,6 +37,7 @@
         <attribute name="streamBareJidStr" attributeType="String" indexed="YES" syncable="YES"/>
     </entity>
     <elements>
+        <element name="XMPPRoomFileTransferMessageCoreDataStorageObject" positionX="160" positionY="192" width="128" height="105"/>
         <element name="XMPPRoomMessageCoreDataStorageObject" positionX="160" positionY="192" width="128" height="240"/>
         <element name="XMPPRoomOccupantCoreDataStorageObject" positionX="160" positionY="192" width="128" height="240"/>
     </elements>

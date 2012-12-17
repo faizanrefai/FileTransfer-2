@@ -15,3 +15,10 @@ typedef enum {
     xmppAccountType
 }AccountType;
 
+typedef enum {
+    kFileTransferStatusNone,
+    kFileTransferStatusSending,
+    kFileTransferStatusReceiving,
+    kFileTransferStatusFail,
+    kFileTransferStatusSuccess
+}FileTransferStatus;
