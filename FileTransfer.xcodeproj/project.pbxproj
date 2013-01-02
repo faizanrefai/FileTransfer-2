@@ -210,6 +210,11 @@
 		84FDC21E1675827F0095B6DD /* FileTransferMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FDC21D1675827F0095B6DD /* FileTransferMessage.m */; };
 		84FDC221167582E60095B6DD /* FileTransferMessageRepository.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FDC220167582E60095B6DD /* FileTransferMessageRepository.m */; };
 		84FDC229167594A10095B6DD /* OneToOneFileTransferCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 84FDC228167594A10095B6DD /* OneToOneFileTransferCell.m */; };
+		84FE63641691EE3800045A51 /* MainTabBarController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84FE63631691EE3700045A51 /* MainTabBarController.xib */; };
+		84FE63661691F48A00045A51 /* all_top.png in Resources */ = {isa = PBXBuildFile; fileRef = 84FE63651691F48A00045A51 /* all_top.png */; };
+		84FE636A1691F51300045A51 /* all_lesting_background.png in Resources */ = {isa = PBXBuildFile; fileRef = 84FE63691691F51300045A51 /* all_lesting_background.png */; };
+		84FE636C1691F59B00045A51 /* chats_top.png in Resources */ = {isa = PBXBuildFile; fileRef = 84FE636B1691F59B00045A51 /* chats_top.png */; };
+		84FE636E1691F74800045A51 /* top_bar_background.png in Resources */ = {isa = PBXBuildFile; fileRef = 84FE636D1691F74800045A51 /* top_bar_background.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -631,6 +636,11 @@
 		84FDC220167582E60095B6DD /* FileTransferMessageRepository.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileTransferMessageRepository.m; sourceTree = "<group>"; };
 		84FDC227167594A10095B6DD /* OneToOneFileTransferCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OneToOneFileTransferCell.h; sourceTree = "<group>"; };
 		84FDC228167594A10095B6DD /* OneToOneFileTransferCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OneToOneFileTransferCell.m; sourceTree = "<group>"; };
+		84FE63631691EE3700045A51 /* MainTabBarController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainTabBarController.xib; sourceTree = "<group>"; };
+		84FE63651691F48A00045A51 /* all_top.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = all_top.png; sourceTree = "<group>"; };
+		84FE63691691F51300045A51 /* all_lesting_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = all_lesting_background.png; sourceTree = "<group>"; };
+		84FE636B1691F59B00045A51 /* chats_top.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chats_top.png; sourceTree = "<group>"; };
+		84FE636D1691F74800045A51 /* top_bar_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = top_bar_background.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -749,6 +759,7 @@
 				840AD5E51668933E000F78E6 /* OccupantsViewController.xib */,
 				84F0D857166A037F00472A86 /* ListFilesView.xib */,
 				8426F774167221BB0065C5FC /* ImageDetailView.xib */,
+				84FE63631691EE3700045A51 /* MainTabBarController.xib */,
 			);
 			path = NIBs;
 			sourceTree = "<group>";
@@ -986,6 +997,10 @@
 		84DA1512163CE99100347BF9 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				84FE636D1691F74800045A51 /* top_bar_background.png */,
+				84FE636B1691F59B00045A51 /* chats_top.png */,
+				84FE63691691F51300045A51 /* all_lesting_background.png */,
+				84FE63651691F48A00045A51 /* all_top.png */,
 				8401F16D165A1411007B196E /* xmpp-sign-icon.png */,
 				8401F169165A135C007B196E /* msn-sign-icon@2x.png */,
 				8401F16A165A135C007B196E /* yahoo-sign-icon@2x.png */,
@@ -1770,6 +1785,11 @@
 				840AD5E61668933E000F78E6 /* OccupantsViewController.xib in Resources */,
 				84F0D858166A037F00472A86 /* ListFilesView.xib in Resources */,
 				8426F775167221BB0065C5FC /* ImageDetailView.xib in Resources */,
+				84FE63641691EE3800045A51 /* MainTabBarController.xib in Resources */,
+				84FE63661691F48A00045A51 /* all_top.png in Resources */,
+				84FE636A1691F51300045A51 /* all_lesting_background.png in Resources */,
+				84FE636C1691F59B00045A51 /* chats_top.png in Resources */,
+				84FE636E1691F74800045A51 /* top_bar_background.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

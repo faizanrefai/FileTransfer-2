@@ -734,18 +734,16 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info
             if (message.fromMe) {
                 [fileTransferTask sendFileData:dataToSend];
             }
-
         }
         fileTransferTask.progressView = cell.progressView;
-
     }
     else if (message.status.integerValue == kFileTransferStatusSuccess) {
         if (fileTransferTask == nil) {
             fileTransferTask = [[MUCFileTransferController sharedInstance] createFileTransferTaskWithMessage:message];
         }        
-        if (message.fromMe) {
+        if (!message.fromMe.boolValue) {
             NSString *path = [DirectoryHelper savedFilesDirectory];
-            path = [DirectoryHelper sentFilesDirectory];
+            //path = [DirectoryHelper sentFilesDirectory];
             path = [path stringByAppendingPathComponent:message.fileName];
             if (![DirectoryHelper fileExistAtPath:path isDir:NO]) {
                 [fileTransferTask recevieFile];
