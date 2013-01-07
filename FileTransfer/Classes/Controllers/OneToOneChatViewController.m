@@ -18,6 +18,7 @@
 #import "OneToOneFileTransferCell.h"
 
 #define FILE_TRANSFER_CELL_HEIGH 100
+#define TABBAR_HEIGH 48
 
 @interface OneToOneChatViewController ()
 - (void)keyboardDidShow:(NSNotification *)notification;
@@ -109,6 +110,10 @@
     if ([message isKindOfClass:[FileTransferMessage class]]) {
         heigh = FILE_TRANSFER_CELL_HEIGH;
     }
+    
+    NSString *text = [(XMPPMessageOneToOneChat *)message body];
+    heigh = [OneToOneChatViewCell heightForCellWithText:text];
+    
     return heigh;
 //    XMPPMessageOneToOneChat *message = [[self chatMessageFetchedResultsController] objectAtIndexPath:indexPath];
 //    return [OneToOneChatViewCell heightForCellWithText:message.body];
@@ -127,6 +132,7 @@
         {
             cell = [[OneToOneChatViewCell alloc] initWithStyle:UITableViewCellStyleDefault
                                                reuseIdentifier:CellIdentifier];
+            [cell setSelectionStyle:UITableViewCellEditingStyleNone];
         }
         [(OneToOneChatViewCell *)cell setChatMessage:(XMPPMessageOneToOneChat *)message];
     }
@@ -243,6 +249,9 @@
     inputTextField.text = @"";
 }
 
+- (IBAction)backAction:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 #pragma mark - Keyboard delegate
 -(void) keyboardDidShow: (NSNotification *)notif 
@@ -264,17 +273,16 @@
     
     // Resize the scroll view to make room for the keyboard
     CGRect viewFrame = self.mainTable.frame;
-    viewFrame.size.height -= keyboardSize.height;
+    viewFrame.size.height -= (keyboardSize.height - TABBAR_HEIGH);
     self.mainTable.frame = viewFrame;
     
     //Set frame for input view
     viewFrame = self.inputTextView.frame;
-    viewFrame.origin.y -= keyboardSize.height;
+    viewFrame.origin.y -= (keyboardSize.height - TABBAR_HEIGH);
     self.inputTextView.frame = viewFrame;
     
     // Keyboard is now visible
     keyboardVisible = YES;
-
 }
 
 -(void) keyboardDidHide: (NSNotification *)notif 
@@ -292,12 +300,12 @@
     CGSize keyboardSize = [aValue CGRectValue].size;
     
     CGRect viewFrame = self.mainTable.frame;
-    viewFrame.size.height += keyboardSize.height;
+    viewFrame.size.height += (keyboardSize.height - TABBAR_HEIGH);
     self.mainTable.frame = viewFrame;
     
     //Set frame for input view
     viewFrame = self.inputTextView.frame;
-    viewFrame.origin.y += keyboardSize.height;
+    viewFrame.origin.y += (keyboardSize.height - TABBAR_HEIGH);
     self.inputTextView.frame = viewFrame;
     
     // Keyboard is no longer visible

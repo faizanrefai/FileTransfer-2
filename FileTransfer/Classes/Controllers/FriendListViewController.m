@@ -17,6 +17,10 @@
 #import "NSString+Contain.h"
 #import "XMPPUtil.h"
 #import "DirectoryHelper.h"
+//#import "XMPPUserCoreDataStorageObject+DisplayName.h"
+#import "ContactViewCell.h"
+
+#define PADDING 20
 
 @interface FriendListViewController ()
 - (void)showAccounts;
@@ -24,15 +28,17 @@
 - (void)showActionSheet;
 - (void)showFileReceived;
 - (NSArray *)urlsAtSavedDirectory;
+
+- (void)configureBarItem;
 @end
 
 @implementation FriendListViewController
+@synthesize tableView;
 
-- (id)initWithStyle:(UITableViewStyle)style
-{
-    self = [super initWithStyle:style];
+- (id)init {
+    self = [super init];
     if (self) {
-        // Custom initialization
+        [self configureBarItem];
     }
     return self;
 }
@@ -40,20 +46,19 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = @"Users";
-    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStyleBordered target:self action:@selector(showActionSheet)];
-    [[self navigationItem] setLeftBarButtonItem:leftItem];
-    
-    //Add roomlist button
-    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"Rooms" style:UIBarButtonItemStyleBordered target:self action:@selector(showRooms)];
-    [[self navigationItem] setRightBarButtonItem:rightItem];
-    
-    //Actionsheet
-    actionSheet = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Account", @"Files Received", nil];
-    
-    //Handle invite muc
-    XMPPMUC *xmppMUC = [[XMPPHandler sharedInstance] xmppMUC];
-    [xmppMUC addDelegate:self delegateQueue:dispatch_get_main_queue()];
+//    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStyleBordered target:self action:@selector(showActionSheet)];
+//    [[self navigationItem] setLeftBarButtonItem:leftItem];
+//    
+//    //Add roomlist button
+//    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"Rooms" style:UIBarButtonItemStyleBordered target:self action:@selector(showRooms)];
+//    [[self navigationItem] setRightBarButtonItem:rightItem];
+//    
+//    //Actionsheet
+//    actionSheet = [[UIActionSheet alloc] initWithTitle:@"" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Account", @"Files Received", nil];
+//    
+//    //Handle invite muc
+//    XMPPMUC *xmppMUC = [[XMPPHandler sharedInstance] xmppMUC];
+//    [xmppMUC addDelegate:self delegateQueue:dispatch_get_main_queue()];
     
     
     // Uncomment the following line to preserve selection between presentations.
@@ -93,10 +98,10 @@
 		NSEntityDescription *entity = [NSEntityDescription entityForName:@"XMPPUserCoreDataStorageObject"
 		                                          inManagedObjectContext:moc];
 		
-		NSSortDescriptor *sd1 = [[NSSortDescriptor alloc] initWithKey:@"sectionNum" ascending:YES];
-		NSSortDescriptor *sd2 = [[NSSortDescriptor alloc] initWithKey:@"displayName" ascending:YES];
+		NSSortDescriptor *sd1 = [[NSSortDescriptor alloc] initWithKey:@"displayName" ascending:YES];
+		NSSortDescriptor *sd2 = [[NSSortDescriptor alloc] initWithKey:@"firstDisplayNameCharacter" ascending:YES];
 		
-		NSArray *sortDescriptors = [NSArray arrayWithObjects:sd1, sd2, nil];
+		NSArray *sortDescriptors = [NSArray arrayWithObjects:sd2, sd1, nil];
 		
         
 		NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -110,8 +115,13 @@
 		
 		fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
 		                                                               managedObjectContext:moc
-		                                                                 sectionNameKeyPath:@"sectionNum"
+		                                                                 sectionNameKeyPath:@"self.firstDisplayNameCharacter"
 		                                                                          cacheName:nil];
+//        fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+//		                                                               managedObjectContext:moc
+//		                                                                 sectionNameKeyPath:@"firstDisplayNameCharacter"
+//		                                                                          cacheName:nil];
+
 		[fetchedResultsController setDelegate:self];
 		
 		
@@ -139,6 +149,7 @@
 {
 	// Our xmppRosterStorage will cache photos as they arrive from the xmppvCardAvatarModule.
 	// We only need to ask the avatar module for a photo, if the roster doesn't have it.
+    
 	
 	if (user.photo != nil)
 	{
@@ -151,7 +162,7 @@
 		if (photoData != nil)
 			cell.imageView.image = [UIImage imageWithData:photoData];
 		else
-			cell.imageView.image = [UIImage imageNamed:@"defaultPerson"];
+			cell.imageView.image = [UIImage imageNamed:@"list_icon.png"];
 	}
     
     //Check accout type
@@ -164,7 +175,8 @@
     }
     UIImage *acountTypeImage = [UIImage imageNamed:accountImageName];
     UIImageView *imageView = [[UIImageView alloc] initWithImage:acountTypeImage];
-    cell.accessoryView = imageView;
+    //cell.accessoryView = imageView;
+    
     
 }
 
@@ -177,6 +189,10 @@
 	return [[[self fetchedResultsController] sections] count];
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 35;
+}
+
 - (NSString *)tableView:(UITableView *)sender titleForHeaderInSection:(NSInteger)sectionIndex
 {
 	NSArray *sections = [[self fetchedResultsController] sections];
@@ -184,17 +200,36 @@
 	if (sectionIndex < [sections count])
 	{
 		id <NSFetchedResultsSectionInfo> sectionInfo = [sections objectAtIndex:sectionIndex];
-        
-		int section = [sectionInfo.name intValue];
-		switch (section)
-		{
-			case 0  : return @"Available";
-			case 1  : return @"Away";
-			default : return @"Offline";
-		}
+
+        return sectionInfo.name;
+//		int section = [sectionInfo.name intValue];
+//		switch (section)
+//		{
+//			case 0  : return @"Available";
+//			case 1  : return @"Away";
+//			default : return @"Offline";
+//		}
 	}
 	
 	return @"";
+}
+
+- (UIView *) tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    UIView *headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.tableView.bounds.size.width, 20)];
+    UIImageView *headerImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bg_listing.png"]];
+    
+    headerImage.frame = CGRectMake(0, 0, self.tableView.bounds.size.width, 20);
+    
+    [headerView addSubview:headerImage];
+    
+    //Add label
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(PADDING, 0, 300, headerImage.frame.size.height)];
+    [headerView addSubview:label];
+    label.text = [self tableView:self.tableView titleForHeaderInSection:section];
+    label.backgroundColor = [UIColor clearColor];
+    
+    return headerView;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)sectionIndex
@@ -214,10 +249,10 @@
 {
 	static NSString *CellIdentifier = @"FriendListCell";
 	
-	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+	UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if (cell == nil)
 	{
-		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+		cell = [[ContactViewCell alloc] initWithStyle:UITableViewCellStyleDefault
                                       reuseIdentifier:CellIdentifier];
 	}
 	
@@ -345,5 +380,20 @@
     NSString *savedFilePath = [DirectoryHelper savedFilesDirectory];
     NSArray *urls = [DirectoryHelper filesAtPath:savedFilePath];
     return urls;
+}
+
+- (void)configureBarItem {
+    //Tabbar Item
+    self.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Contact" image:nil tag:0];
+    [[self tabBarItem] setFinishedSelectedImage:[UIImage imageNamed:@"contact_icon_green.png"] withFinishedUnselectedImage:[UIImage imageNamed:@"contact_icon_gray.png"]];
+    
+    [[self tabBarItem] setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
+                                               [UIColor whiteColor], UITextAttributeTextColor,
+                                               nil] forState:UIControlStateNormal];
+    
+    UIColor *selectedColor = [UIColor colorWithRed: (float)71/255 green: (float)156/255 blue: (float)63/255 alpha:1.0];
+    [[self tabBarItem] setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
+                                               selectedColor, UITextAttributeTextColor,
+                                               nil] forState:UIControlStateSelected];
 }
 @end

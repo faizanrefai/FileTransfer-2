@@ -24,7 +24,7 @@ extern NSString * const didXMPPAuthenticateFail;
 extern NSString * const xmppDidDisconnect;
 extern NSString * const xmppDidGetRoomList;
 extern NSString * const didDownloadFileTransferGroup;
-
+extern NSString * const insertedOneToOneMessage;
 
 #pragma mark - Keychain identify
 extern NSString * const kXMPPPasswordKeychainIdentify;

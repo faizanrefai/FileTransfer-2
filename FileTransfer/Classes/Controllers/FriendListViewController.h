@@ -11,11 +11,13 @@
 #import "AccountsViewController.h"
 #import "ListFilesViewController.h"
 
-@interface FriendListViewController : UITableViewController <NSFetchedResultsControllerDelegate, UIActionSheetDelegate, AccoutViewDelegate> {
+@interface FriendListViewController : UIViewController <NSFetchedResultsControllerDelegate, UIActionSheetDelegate, UITableViewDataSource, UITableViewDelegate ,AccoutViewDelegate> {
     NSFetchedResultsController *fetchedResultsController;
     UIAlertView *inviteAlertView;
     UIAlertView *declineAlertView;
     UIActionSheet *actionSheet;
 }
+
+@property (nonatomic, strong) IBOutlet UITableView *tableView;
 
 @end

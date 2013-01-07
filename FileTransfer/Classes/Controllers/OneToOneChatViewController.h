@@ -28,4 +28,5 @@
 @property (nonatomic) IBOutlet UIView *inputTextView;
 
 - (IBAction)sendAction:(id)sender;
+- (IBAction)backAction:(id)sender;
 @end

@@ -44,6 +44,8 @@
 @dynamic unreadMessages;
 @dynamic photo;
 
+@dynamic firstDisplayNameCharacter;//Hoanhax 20130103
+
 @dynamic section, primitiveSection;
 @dynamic sectionName, primitiveSectionName;
 @dynamic sectionNum, primitiveSectionNum;
@@ -156,8 +158,19 @@
   
   // If the displayName changes, the sectionName becomes invalid.
   [self setPrimitiveSectionName:nil];
+    
+    //Hoanhax 20130103
+    [self setFirstDisplayNameCharacter:self.firstDisplayNameCharacter];
 }
 
+
+- (NSString *)firstDisplayNameCharacter {
+    [self willAccessValueForKey:@"jidStr"];
+    NSString * initial = [[self jidStr] substringToIndex:1];
+    initial = [initial uppercaseString];
+    [self didAccessValueForKey:@"jidStr"];
+    return initial;
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark NSManagedObject
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

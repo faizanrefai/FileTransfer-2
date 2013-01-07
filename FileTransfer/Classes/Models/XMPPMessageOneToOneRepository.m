@@ -93,5 +93,7 @@
     messageOneToOne.localTimestamp = localTimestamp;
     messageOneToOne.remoteTimestamp = remoteTimestamp;
     messageOneToOne.streamBareJidStr = [[stream myJID] bare];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:insertedOneToOneMessage object:messageOneToOne];
 }
 @end

@@ -16,6 +16,7 @@
 @property (nonatomic) IBOutlet UIButton *registerButton;
 @property (nonatomic) IBOutlet UIScrollView *mainScrollView;
 
+
 - (IBAction)loginAction:(id)sender;
 - (IBAction)registerAction:(id)sender;
 @end

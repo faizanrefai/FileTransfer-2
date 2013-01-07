@@ -37,6 +37,8 @@
 @property (nonatomic, strong) NSString * sectionName;
 @property (nonatomic, strong) NSNumber * sectionNum;
 
+@property (nonatomic, strong) NSString *firstDisplayNameCharacter;//20130103 hoanhax
+
 @property (nonatomic, strong) NSSet * groups;
 @property (nonatomic, strong) XMPPResourceCoreDataStorageObject * primaryResource;
 @property (nonatomic, strong) NSSet * resources;

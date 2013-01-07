@@ -17,7 +17,7 @@
     
     UIImage *outGoingChatImage;
     UIImage *inCommingChatImage;
-    
+    UIImageView *avartar;
     BOOL isMe;
     BOOL isShowAvatar_;
     XMPPMessageOneToOneChat *chatMessage_;

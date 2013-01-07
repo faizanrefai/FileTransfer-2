@@ -9,11 +9,20 @@
 #import "RegisterViewController.h"
 #import <Restkit/JSONKit.h>
 #import "MBProgressHUD.h"
+#import "AppConstants.h"
+#import "XMPPHandler.h"
 
+
+#import "FriendListViewController.h"
+#import "CurrentOneToOneChatViewController.h"
+#import "CallViewController.h"
+#import "MediaViewController.h"
+#import "SettingsViewController.h"
 
 @interface RegisterViewController ()
 - (void)keyboardDidShow:(NSNotification *)notification;
 - (void)keyboardDidHide:(NSNotification *)notification;
+- (UITabBarController *)createTabBarController;
 @end
 
 @implementation RegisterViewController
@@ -40,6 +49,11 @@
     //Add keyboard notification handle
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didAuthenticated:) name:didXMPPAuthenticated object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didAuthenticateFail:) name:didXMPPAuthenticateFail object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(xmppDidDisconect:) name:xmppDidDisconnect object:nil];
+
     [self.registerScrollView setContentSize:self.registerScrollView.frame.size];
 }
 
@@ -81,6 +95,18 @@
     [textField resignFirstResponder];
     return YES;
 }
+
+- (BOOL) textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    NSCharacterSet *nonNumberSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789"] invertedSet];
+    // allow backspace
+    if (range.length > 0 && [string length] == 0) {
+        return YES;
+    }
+    
+    return ([string stringByTrimmingCharactersInSet:nonNumberSet].length > 0);
+}
+
 
 #pragma mark - Private methods
 - (void)keyboardDidShow:(NSNotification *)notification {
@@ -135,11 +161,22 @@
             NSString *message = [dataDictionary objectForKey:@"msg"];
             
             if ([message isEqualToString:@"Record Inserted"]) {
+                [self loginwithUsername:username password:password];
                 if ([delegate respondsToSelector:@selector(registerSuccessWithUsername:password:)]) {
                     [delegate registerSuccessWithUsername:username password:password];
                 }
             }
+            else if ([message isEqualToString:@"Username is already LoggedIn"]) {
+                [self loginwithUsername:username password:password];
+                if ([delegate respondsToSelector:@selector(registerSuccessWithUsername:password:)]) {
+                    [delegate registerSuccessWithUsername:username password:password];
+                }
+            }
+
             else {
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Register Fail!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                [alert show];
+                
                 if ([delegate respondsToSelector:@selector(registerDidFailWithMessage:)]) {
                     [delegate registerDidFailWithMessage:@"Regiser fail!"];
                 }                
@@ -159,7 +196,89 @@
 }  
 
 - (IBAction)cancelAction:(id)sender {
-    [self dismissModalViewControllerAnimated:YES];
+    //[self dismissModalViewControllerAnimated:YES];
+    [usernameTextField resignFirstResponder];
+}
+
+
+- (void)loginwithUsername:(NSString *)userJID password:(NSString *)pass {
+    [usernameTextField resignFirstResponder];
+    [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    if ([userJID rangeOfString:xmppHostName].location == NSNotFound) {
+        userJID = [userJID stringByAppendingFormat:@"@%@", xmppHostName];
+    }
+    if (![[XMPPHandler sharedInstance] loginWithUsername:userJID password:pass]) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Login Error!"
+		                                                    message:@"User JID or password not correct!."
+		                                                   delegate:nil
+		                                          cancelButtonTitle:@"Ok"
+		                                          otherButtonTitles:nil];
+		[alertView show];
+        [MBProgressHUD hideHUDForView:self.view animated:YES];
+    }
+}
+
+- (void)didAuthenticated:(NSNotification *)notification {
+    //FriendListViewController *friendListViewController = [[FriendListViewController alloc] init];
+    //    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:friendListViewController];
+    //    [self presentModalViewController:navigationController animated:YES];
+    
+    [self presentModalViewController:[self createTabBarController] animated:YES];
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+}
+
+
+
+- (void)didAuthenticateFail:(NSNotification *)notification {
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Loin fail, username or password not correct" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+    [alert show];
+}
+
+- (void)xmppDidDisconect:(NSNotification *)notification {
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Can not connect to xmpp server!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+    [alert show];
+    
+}
+
+- (UITabBarController *)createTabBarController {
+    //    UITabBarController *tabBarController = [[UITabBarController alloc] initWithNibName:@"MainTaBarController" bundle:[NSBundle mainBundle]];
+    //
+    
+    UITabBarController *tabBarController = [[UITabBarController alloc] init];
+    
+    //Chat
+    CurrentOneToOneChatViewController *currentOneToOneChatViewController = [[CurrentOneToOneChatViewController alloc] init];
+    UINavigationController *currentOneToOneChatNavController = [[UINavigationController alloc] initWithRootViewController:currentOneToOneChatViewController];
+    [[currentOneToOneChatNavController navigationBar] setHidden:YES];
+    
+    //Call
+    CallViewController *callViewController = [[CallViewController alloc] init];
+    UINavigationController *callNavController = [[UINavigationController alloc] initWithRootViewController:callViewController];
+    [[callNavController navigationBar] setHidden:YES];
+    
+    //Media
+    MediaViewController *mediaViewController = [[MediaViewController alloc] init];
+    UINavigationController *mediaNavController = [[UINavigationController alloc] initWithRootViewController:mediaViewController];
+    [[mediaNavController navigationBar] setHidden:YES];
+    
+    //Contact
+    FriendListViewController *friendListViewController = [[FriendListViewController alloc] init];
+    UINavigationController *friendListNavigationController = [[UINavigationController alloc] initWithRootViewController:friendListViewController];
+    [[friendListNavigationController navigationBar] setHidden:YES];
+    
+    //Setttings
+    SettingsViewController *settingsViewController = [[SettingsViewController alloc] init];
+    UINavigationController *settingsNavController = [[UINavigationController alloc] initWithRootViewController:settingsViewController];
+    [[settingsNavController navigationBar] setHidden:YES];
+    
+    
+    tabBarController.viewControllers = [NSArray arrayWithObjects: currentOneToOneChatNavController, callNavController, mediaNavController,friendListNavigationController, settingsNavController, nil];
+    
+    [[tabBarController tabBar] setBackgroundImage:[UIImage imageNamed:@"background_tab_bar.png"]];
+    [tabBarController setSelectedIndex:0];
+    return tabBarController;
 }
 
 @end

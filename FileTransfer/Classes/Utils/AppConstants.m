@@ -28,6 +28,7 @@ NSString * const xmppDidDisconnect = @"xmppDidDisconnect";
 NSString * const xmppDidGetRoomList = @"xmppDidGetRoomList";
 
 NSString * const didDownloadFileTransferGroup = @"didDownloadFileTransferGroup";
+NSString * const insertedOneToOneMessage = @"insertedOneToOneMessage";
 
 #pragma mark - Keychain identify
 NSString * const kXMPPPasswordKeychainIdentify = @"XMPPPasswordKeychainIdentify";
