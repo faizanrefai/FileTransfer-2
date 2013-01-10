@@ -44,6 +44,7 @@
         [messageLabel setTextAlignment:UITextAlignmentLeft];
         [messageLabel setLineBreakMode:UILineBreakModeWordWrap];
         [messageLabel setNumberOfLines:0];
+        [messageLabel setBackgroundColor:[UIColor clearColor]];
         [[self contentView] addSubview:messageLabel];
         
         

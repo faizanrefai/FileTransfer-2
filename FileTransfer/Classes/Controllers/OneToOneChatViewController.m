@@ -17,7 +17,7 @@
 #import "FileTransferMessage.h"
 #import "OneToOneFileTransferCell.h"
 
-#define FILE_TRANSFER_CELL_HEIGH 100
+#define FILE_TRANSFER_CELL_HEIGH 70
 #define TABBAR_HEIGH 48
 
 @interface OneToOneChatViewController ()
@@ -110,10 +110,10 @@
     if ([message isKindOfClass:[FileTransferMessage class]]) {
         heigh = FILE_TRANSFER_CELL_HEIGH;
     }
-    
-    NSString *text = [(XMPPMessageOneToOneChat *)message body];
-    heigh = [OneToOneChatViewCell heightForCellWithText:text];
-    
+    else {
+        NSString *text = [(XMPPMessageOneToOneChat *)message body];
+        heigh = [OneToOneChatViewCell heightForCellWithText:text];
+    }
     return heigh;
 //    XMPPMessageOneToOneChat *message = [[self chatMessageFetchedResultsController] objectAtIndexPath:indexPath];
 //    return [OneToOneChatViewCell heightForCellWithText:message.body];
@@ -144,6 +144,7 @@
         {
             cell = [[OneToOneFileTransferCell alloc] initWithStyle:UITableViewCellStyleDefault
                                                reuseIdentifier:CellIdentifier];
+            [cell setSelectionStyle:UITableViewCellEditingStyleNone];
         }
         [(OneToOneFileTransferCell *)cell setMessage:(FileTransferMessage *)message];
     }

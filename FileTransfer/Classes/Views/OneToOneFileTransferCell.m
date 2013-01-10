@@ -30,6 +30,7 @@
         //
         fileNameLabel = [[UILabel alloc] init];
         [self.contentView addSubview:fileNameLabel];
+        [fileNameLabel setBackgroundColor:[UIColor clearColor]];
         
         //
         progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
@@ -58,8 +59,8 @@
 
 #pragma mark - Private methods
 - (void)layoutViews {
-    [imageView setFrame:CGRectMake(5, 5, 90, 90)];
-    [fileNameLabel setFrame:CGRectMake(105, 14, 206, 41)];
+    [imageView setFrame:CGRectMake(5, 5, 60, 60)];
+    [fileNameLabel setFrame:CGRectMake(70, 14, 206, 41)];
     [progressView setFrame:CGRectMake(105, 77, 205, 9)];
     [indicatorView setFrame:CGRectMake(32, 32, 37, 37)];
     
