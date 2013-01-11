@@ -9,6 +9,7 @@
 #import "OneToOneChatViewCell.h"
 #import "UIImage+Scale.h"
 #import "XMPPHandler.h"
+#import "XMPPUtil.h"
 
 #define AVARTA_HEIGHT 55
 #define PADDING 50
@@ -249,7 +250,14 @@
 
 #pragma mark - Private methods
 - (void)configureAvatar {
-    NSData *photoData = [[[XMPPHandler sharedInstance] xmppvCardAvatarModule] photoDataForJID:[XMPPJID jidWithString:chatMessage_.jidStr]];
+    NSData *photoData;
+    if (chatMessage_.fromMe.boolValue) {
+        photoData = [[[XMPPHandler sharedInstance] xmppvCardAvatarModule] photoDataForJID:[XMPPUtil myBareJID]];
+        
+    }
+    else {
+        photoData = [[[XMPPHandler sharedInstance] xmppvCardAvatarModule] photoDataForJID:[XMPPJID jidWithString:chatMessage_.jidStr]];
+    }
     
     if (photoData != nil)
         avartar.image = [UIImage imageWithData:photoData];

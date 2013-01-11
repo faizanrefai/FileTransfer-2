@@ -19,7 +19,7 @@
         <attribute name="type" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
     </entity>
     <elements>
-        <element name="XMPPMessageOneToOneChat" positionX="160" positionY="192" width="128" height="210"/>
         <element name="FileTransferMessage" positionX="160" positionY="192" width="128" height="90"/>
+        <element name="XMPPMessageOneToOneChat" positionX="160" positionY="192" width="128" height="210"/>
     </elements>
 </model>

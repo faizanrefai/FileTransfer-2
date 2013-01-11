@@ -14,7 +14,9 @@
 
 @end
 
-@interface ListFilesViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
+@interface ListFilesViewController : UIViewController <UITableViewDataSource, UITableViewDelegate> {
+    NSFetchedResultsController *fileFetchedResultController;
+}
 @property (nonatomic, strong) NSArray *urlArray;
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
 @property (nonatomic, assign) id<ListFilesViewControllerDelegate> delegate;

@@ -139,6 +139,7 @@ didReceiveFileTransferReponse:(XMPPIQ *)iq {
             fileTransferMessage.fromMe = [NSNumber numberWithBool:YES];
             fileTransferMessage.streamBareJidStr = [XMPPUtil streamBareJidStr];
             [fileTransferMessageRepository addMessage:fileTransferMessage];
+            [fileTransferMessageRepository saveContext];
         }
     }
 
@@ -155,6 +156,7 @@ didReceiveFileTransferReponse:(XMPPIQ *)iq {
         fileTransferMessage.fromMe = [NSNumber numberWithBool:NO];
         fileTransferMessage.streamBareJidStr = [XMPPUtil streamBareJidStr];
         [fileTransferMessageRepository addMessage:fileTransferMessage];
+        [fileTransferMessageRepository saveContext];
     }
 }
 
@@ -166,6 +168,7 @@ didReceiveFileTransferReponse:(XMPPIQ *)iq {
     if (!error) {
         fileTransferMessage.url = path;
         fileTransferMessage.status = [NSNumber numberWithInteger:kFileTransferStatusSuccess];
+        [[FileTransferMessageRepository sharedInstance] saveContext];
     }
 }
 
@@ -183,6 +186,7 @@ didReceiveFileTransferReponse:(XMPPIQ *)iq {
             [alert show];
             fileTransferMessage.url = path;
             fileTransferMessage.status = [NSNumber numberWithInteger:kFileTransferStatusSuccess];
+            [[FileTransferMessageRepository sharedInstance] saveContext];
         });
     }
     else {
