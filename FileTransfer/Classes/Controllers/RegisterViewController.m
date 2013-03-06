@@ -45,6 +45,11 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    UserName = [[NSUserDefaults standardUserDefaults] stringForKey:@"UserName"];
+    NSLog(@"%@",UserName);
+    usernameTextField.text=UserName;
+    if(UserName==nil)
+    {
 	// Do any additional setup after loading the view.
     //Add keyboard notification handle
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
@@ -55,8 +60,29 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(xmppDidDisconect:) name:xmppDidDisconnect object:nil];
 
     [self.registerScrollView setContentSize:self.registerScrollView.frame.size];
+    }
+        
+            else{
+                NSString *deviceId = [[UIDevice currentDevice] uniqueIdentifier];
+                [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+                password=@"123123";
+                NSLog(@"%@",UserName);
+                NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys: UserName, @"Username", password, @"Password", deviceId, @"DeviceID", @"user_info", @"type", nil];
+                [[RKClient sharedClient] post:@"/insert_data.php?" params:params delegate:self];
+            }
+        
 }
-
+-(void)loginaction:(NSString *)username
+{
+    ischat=TRUE;
+    NSString *deviceId = [[UIDevice currentDevice] uniqueIdentifier];
+    [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    password=@"123123";
+    NSLog(@"%@",UserName);
+    NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys: username, @"Username", password, @"Password", deviceId, @"DeviceID", @"user_info", @"type", nil];
+    [[RKClient sharedClient] post:@"/insert_data.php?" params:params delegate:self];
+    
+}
 - (void)viewDidUnload
 {
     [super viewDidUnload];
@@ -71,8 +97,9 @@
 #pragma mark - IBAction methods
 - (void)registerAction:(id)sender {
     username = usernameTextField.text;
-    password = passwordTextField.text;
-    NSString *rePassword = rePasswordTextField.text;
+    password = @"123123";
+    UserName=usernameTextField.text;
+    NSString *rePassword = @"123123";
     NSString *deviceId = [[UIDevice currentDevice] uniqueIdentifier];
     
     if (username.length == 0) {
@@ -143,57 +170,115 @@
 
 #pragma mark - RKRequest Delegate
 - (void)request:(RKRequest*)request didLoadResponse:(RKResponse*)response {  
-    [MBProgressHUD hideHUDForView:self.view animated:YES];
-    if ([request isGET]) {  
-        // Handling GET /foo.xml  
-        if ([response isOK]) {  
-            // Success! Let's take a look at the data  
-            NSLog(@"Retrieved XML: %@", [response bodyAsString]);  
-        }  
-    } else if ([request isPOST]) {  
-        // Handling POST /other.json  file
-        NSString *jsonString = [response bodyAsString];
-        NSLog(@"%@", jsonString);
-        id object = [jsonString objectFromJSONString];
-        if ([object isKindOfClass:[NSDictionary class]]) {
-            //{"UserId":"128","msg":"Username is already LoggedIn"}
-            NSDictionary *dataDictionary = (NSDictionary *)object;
-            NSString *message = [dataDictionary objectForKey:@"msg"];
-            
-            if ([message isEqualToString:@"Record Inserted"]) {
-                [self loginwithUsername:username password:password];
-                if ([delegate respondsToSelector:@selector(registerSuccessWithUsername:password:)]) {
-                    [delegate registerSuccessWithUsername:username password:password];
-                }
-            }
-            else if ([message isEqualToString:@"Username is already LoggedIn"]) {
-                [self loginwithUsername:username password:password];
-                if ([delegate respondsToSelector:@selector(registerSuccessWithUsername:password:)]) {
-                    [delegate registerSuccessWithUsername:username password:password];
-                }
-            }
-
-            else {
-                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Register Fail!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-                [alert show];
-                
-                if ([delegate respondsToSelector:@selector(registerDidFailWithMessage:)]) {
-                    [delegate registerDidFailWithMessage:@"Regiser fail!"];
-                }                
-            }
-        }
-        else {
-            if ([delegate respondsToSelector:@selector(registerDidFailWithMessage:)]) {
-                [delegate registerDidFailWithMessage:@"Regiser fail!"];
-            }                
-        }
-    } else if ([request isDELETE]) {  
-        // Handling DELETE /missing_resource.txt  
-        if ([response isNotFound]) {  
-            NSLog(@"The resource path '%@' was not found.", [request resourcePath]);  
-        }  
-    }  
-}  
+   if(!ischat)
+   {
+       [MBProgressHUD hideHUDForView:self.view animated:YES];
+       if ([request isGET]) {
+           // Handling GET /foo.xml
+           if ([response isOK]) {
+               // Success! Let's take a look at the data
+               NSLog(@"Retrieved XML: %@", [response bodyAsString]);
+           }
+       } else if ([request isPOST]) {
+           // Handling POST /other.json  file
+           NSString *jsonString = [response bodyAsString];
+           NSLog(@"%@", jsonString);
+           id object = [jsonString objectFromJSONString];
+           if ([object isKindOfClass:[NSDictionary class]]) {
+               //{"UserId":"128","msg":"Username is already LoggedIn"}
+               NSDictionary *dataDictionary = (NSDictionary *)object;
+               NSString *message = [dataDictionary objectForKey:@"msg"];
+               
+               if ([message isEqualToString:@"Record Inserted"]) {
+                   [self loginwithUsername:UserName password:password];
+                   if ([delegate respondsToSelector:@selector(registerSuccessWithUsername:password:)]) {
+                       [delegate registerSuccessWithUsername:username password:password];
+                   }
+               }
+               else if ([message isEqualToString:@"Username is already LoggedIn"]) {
+                   [[NSUserDefaults standardUserDefaults] setObject:UserName forKey:@"UserName"];
+                   [[NSUserDefaults standardUserDefaults] synchronize];
+                   [self loginwithUsername:UserName password:password];
+                   if ([delegate respondsToSelector:@selector(registerSuccessWithUsername:password:)]) {
+                       [delegate registerSuccessWithUsername:username password:password];
+                   }
+               }
+               
+               else {
+                   UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Register Fail!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                   [alert show];
+                   
+                   if ([delegate respondsToSelector:@selector(registerDidFailWithMessage:)]) {
+                       [delegate registerDidFailWithMessage:@"Regiser fail!"];
+                   }
+               }
+           }
+           else {
+               if ([delegate respondsToSelector:@selector(registerDidFailWithMessage:)]) {
+                   [delegate registerDidFailWithMessage:@"Regiser fail!"];
+               }
+           }
+       } else if ([request isDELETE]) {
+           // Handling DELETE /missing_resource.txt
+           if ([response isNotFound]) {  
+               NSLog(@"The resource path '%@' was not found.", [request resourcePath]);  
+           }  
+       }
+   }
+   else{
+       [MBProgressHUD hideHUDForView:self.view animated:YES];
+       if ([request isGET]) {
+           // Handling GET /foo.xml
+           if ([response isOK]) {
+               // Success! Let's take a look at the data
+               NSLog(@"Retrieved XML: %@", [response bodyAsString]);
+           }
+       } else if ([request isPOST]) {
+           // Handling POST /other.json  file
+           NSString *jsonString = [response bodyAsString];
+           NSLog(@"%@", jsonString);
+           id object = [jsonString objectFromJSONString];
+           if ([object isKindOfClass:[NSDictionary class]]) {
+               //{"UserId":"128","msg":"Username is already LoggedIn"}
+               NSDictionary *dataDictionary = (NSDictionary *)object;
+               NSString *message = [dataDictionary objectForKey:@"msg"];
+               
+               if ([message isEqualToString:@"Record Inserted"]) {
+                   [self loginwithUsername:UserName password:password];
+                   if ([delegate respondsToSelector:@selector(registerSuccessWithUsername:password:)]) {
+                       [delegate registerSuccessWithUsername:username password:password];
+                   }
+               }
+               else if ([message isEqualToString:@"Username is already LoggedIn"]) {
+                  
+                   [self loginwithUsername:UserName password:password];
+                   if ([delegate respondsToSelector:@selector(registerSuccessWithUsername:password:)]) {
+                       [delegate registerSuccessWithUsername:username password:password];
+                   }
+               }
+               
+               else {
+                   UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Register Fail!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+                   [alert show];
+                   
+                   if ([delegate respondsToSelector:@selector(registerDidFailWithMessage:)]) {
+                       [delegate registerDidFailWithMessage:@"Regiser fail!"];
+                   }
+               }
+           }
+           else {
+               if ([delegate respondsToSelector:@selector(registerDidFailWithMessage:)]) {
+                   [delegate registerDidFailWithMessage:@"Regiser fail!"];
+               }
+           }
+       } else if ([request isDELETE]) {
+           // Handling DELETE /missing_resource.txt
+           if ([response isNotFound]) {  
+               NSLog(@"The resource path '%@' was not found.", [request resourcePath]);  
+           }  
+       }
+   }
+}
 
 - (IBAction)cancelAction:(id)sender {
     //[self dismissModalViewControllerAnimated:YES];
@@ -216,32 +301,23 @@
 		[alertView show];
         [MBProgressHUD hideHUDForView:self.view animated:YES];
     }
+    else{
+        if (!ischat) {
+                    [self presentModalViewController:[self createTabBarController] animated:YES];
+            }
+        else
+        {
+//    XMPPUserCoreDataStorageObject *user = [[self fetchedResultsController] objectAtIndexPath:indexPath];
+//
+//    OneToOneChatViewController *oneToOneChatViewController = [[OneToOneChatViewController alloc] init];
+//    oneToOneChatViewController.user = user;
+//      oneToOneChatViewController.lbl=user.displayName;
+//    [[self navigationController] pushViewController:oneToOneChatViewController animated:YES];
+        }
+
+        [MBProgressHUD hideHUDForView:self.view animated:YES];
+    }
 }
-
-- (void)didAuthenticated:(NSNotification *)notification {
-    //FriendListViewController *friendListViewController = [[FriendListViewController alloc] init];
-    //    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:friendListViewController];
-    //    [self presentModalViewController:navigationController animated:YES];
-    
-    [self presentModalViewController:[self createTabBarController] animated:YES];
-    [MBProgressHUD hideHUDForView:self.view animated:YES];
-}
-
-
-
-- (void)didAuthenticateFail:(NSNotification *)notification {
-    [MBProgressHUD hideHUDForView:self.view animated:YES];
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Loin fail, username or password not correct" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-    [alert show];
-}
-
-- (void)xmppDidDisconect:(NSNotification *)notification {
-    [MBProgressHUD hideHUDForView:self.view animated:YES];
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Can not connect to xmpp server!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-    [alert show];
-    
-}
-
 - (UITabBarController *)createTabBarController {
     //    UITabBarController *tabBarController = [[UITabBarController alloc] initWithNibName:@"MainTaBarController" bundle:[NSBundle mainBundle]];
     //
@@ -279,6 +355,28 @@
     [[tabBarController tabBar] setBackgroundImage:[UIImage imageNamed:@"background_tab_bar.png"]];
     [tabBarController setSelectedIndex:0];
     return tabBarController;
+}
+
+- (void)didAuthenticated:(NSNotification *)notification {
+    //FriendListViewController *friendListViewController = [[FriendListViewController alloc] init];
+    //    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:friendListViewController];
+    //    [self presentModalViewController:navigationController animated:YES];
+    
+    [self presentModalViewController:[self createTabBarController] animated:YES];
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+}
+
+- (void)didAuthenticateFail:(NSNotification *)notification {
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Loin fail, username or password not correct" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+    [alert show];
+}
+
+- (void)xmppDidDisconect:(NSNotification *)notification {
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Can not connect to xmpp server!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+    [alert show];
+    
 }
 
 @end

@@ -154,6 +154,7 @@ didReceiveFileTransferReponse:(XMPPIQ *)iq {
         fileTransferMessage.localTimestamp = [NSDate date];
         fileTransferMessage.status = [NSNumber numberWithInteger:kFileTransferStatusReceiving];
         fileTransferMessage.fromMe = [NSNumber numberWithBool:NO];
+        fileTransferMessage.nickname = [jid user];
         fileTransferMessage.streamBareJidStr = [XMPPUtil streamBareJidStr];
         [fileTransferMessageRepository addMessage:fileTransferMessage];
         [fileTransferMessageRepository saveContext];

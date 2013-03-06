@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MediaViewController : UIViewController
+@interface MediaViewController : UIViewController <UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate> {
+    NSFetchedResultsController *fileFetchedResultController;
+}
+@property (nonatomic, strong) IBOutlet UITableView *tableView;
 
 @end

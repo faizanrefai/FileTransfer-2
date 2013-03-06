@@ -17,6 +17,7 @@
 #import "NSString+Contain.h"
 #import "XMPPUtil.h"
 #import "DirectoryHelper.h"
+#import "XMPPHandler.h"
 //#import "XMPPUserCoreDataStorageObject+DisplayName.h"
 #import "ContactViewCell.h"
 
@@ -33,7 +34,7 @@
 @end
 
 @implementation FriendListViewController
-@synthesize tableView;
+@synthesize tableView,contacts,contactsArray;
 
 - (id)init {
     self = [super init];
@@ -46,6 +47,58 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+//    contactsArray=[[NSMutableArray alloc] init];
+//	ABAddressBookRef m_addressbook = ABAddressBookCreate();
+//	
+//	if (!m_addressbook) {
+//		NSLog(@"opening address book");
+//	}
+//	
+//	CFArrayRef allPeople = ABAddressBookCopyArrayOfAllPeople(m_addressbook);
+//	CFIndex nPeople = ABAddressBookGetPersonCount(m_addressbook);
+//	
+//	for (int i=0;i < nPeople;i++) {
+//		NSMutableDictionary *dOfPerson=[NSMutableDictionary dictionary];
+//        
+//		ABRecordRef ref = CFArrayGetValueAtIndex(allPeople,i);
+//        
+//		//For username and surname
+//		ABMultiValueRef phones =(__bridge ABMultiValueRef)((__bridge NSString*)ABRecordCopyValue(ref, kABPersonPhoneProperty));
+//		CFStringRef firstName, lastName;
+//		firstName = ABRecordCopyValue(ref, kABPersonFirstNameProperty);
+//		lastName  = ABRecordCopyValue(ref, kABPersonLastNameProperty);
+//		[dOfPerson setObject:[NSString stringWithFormat:@"%@ %@", firstName, lastName] forKey:@"name"];
+//		
+//		//For Email ids
+//		ABMutableMultiValueRef eMail  = ABRecordCopyValue(ref, kABPersonEmailProperty);
+//		if(ABMultiValueGetCount(eMail) > 0) {
+//			[dOfPerson setObject:(__bridge NSString *)ABMultiValueCopyValueAtIndex(eMail, 0) forKey:@"email"];
+//            
+//		}
+//		
+//		//For Phone number
+//		NSString* mobileLabel;
+//		for(CFIndex i = 0; i < ABMultiValueGetCount(phones); i++) {
+//			mobileLabel = (__bridge NSString*)ABMultiValueCopyLabelAtIndex(phones, i);
+//			if([mobileLabel isEqualToString:(NSString *)kABPersonPhoneMobileLabel])
+//			{
+//				[dOfPerson setObject:(__bridge NSString*)ABMultiValueCopyValueAtIndex(phones, i) forKey:@"Phone"];
+//			}
+//			else if ([mobileLabel isEqualToString:(NSString*)kABPersonPhoneIPhoneLabel])
+//			{
+//				[dOfPerson setObject:(__bridge NSString*)ABMultiValueCopyValueAtIndex(phones, i) forKey:@"Phone"];
+//				break ;
+//			}
+//            
+//            [contactsArray addObject:dOfPerson];
+//            CFRelease(ref);
+////            CFRelease(firstName);
+////            CFRelease(lastName);
+//        }
+//        NSLog(@"array is %@",contactsArray);
+//	}
+
 //    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStyleBordered target:self action:@selector(showActionSheet)];
 //    [[self navigationItem] setLeftBarButtonItem:leftItem];
 //    
@@ -279,8 +332,9 @@
     
     OneToOneChatViewController *oneToOneChatViewController = [[OneToOneChatViewController alloc] init];
     oneToOneChatViewController.user = user;
+      oneToOneChatViewController.lbl=user.displayName;
     [[self navigationController] pushViewController:oneToOneChatViewController animated:YES];
-    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
@@ -351,6 +405,11 @@
     }
 }
 
+
+#pragma mark - IBAction methods
+- (IBAction)viewYatoAction:(id)sender {
+
+}
 
 #pragma mark - Private methods
 - (void)showAccounts {

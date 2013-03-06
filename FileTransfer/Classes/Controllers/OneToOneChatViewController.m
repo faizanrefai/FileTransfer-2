@@ -16,6 +16,7 @@
 #import "FileTransferController.h"
 #import "FileTransferMessage.h"
 #import "OneToOneFileTransferCell.h"
+#import "ImageDetailViewController.h"
 
 #define FILE_TRANSFER_CELL_HEIGH 70
 #define TABBAR_HEIGH 48
@@ -33,7 +34,7 @@
 @synthesize inputTextField;
 @synthesize mainTable;
 @synthesize sendButton;
-@synthesize inputTextView;
+@synthesize inputTextView,lbl;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -61,7 +62,9 @@
     [[NSNotificationCenter defaultCenter] addObserver:self 
                                              selector:@selector (keyboardDidHide:)
                                                  name: UIKeyboardDidHideNotification object:nil];
-    self.title = @"Chat";
+    NSLog(@"%@",lbl);
+    self.title =[NSString stringWithFormat:@"%@",lbl];
+    lblnav.text=[NSString stringWithFormat:@"%@",lbl];
 	// Do any additional setup after loading the view.
     
     //Add send file button
@@ -151,6 +154,20 @@
 	return cell;
 }
 
+
+#pragma mark - UITableViewDelegate
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSObject *message = [messages objectAtIndex:indexPath.row];
+    UIImage *image;
+    if ([message isKindOfClass:[FileTransferMessage class]]) {
+        if ([(FileTransferMessage *)message url]) {
+            NSData *data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:[(FileTransferMessage *)message url]]];
+            image = [UIImage imageWithData:data];
+            ImageDetailViewController *imageDetailViewController = [[ImageDetailViewController alloc] initWithImage:image];
+            [[self navigationController] pushViewController:imageDetailViewController animated:YES];
+        }
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark NSFetchedResultsController
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -400,7 +417,10 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info
 - (void)sendFileAction {
     [self showImagePicker];
 }
-
+- (IBAction)sendFileAction:(id)sender
+{
+        [self showImagePicker];
+}
 - (NSString *)currentDateString {
     NSDate *date = [NSDate date];
     NSDateFormatter *formater = [[NSDateFormatter alloc] init];

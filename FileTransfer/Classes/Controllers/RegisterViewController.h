@@ -20,6 +20,8 @@
     CGRect contentFrame;
     NSString *username;
     NSString *password;
+    NSString *UserName;
+    BOOL *ischat;
 }
 @property (nonatomic) IBOutlet UITextField *usernameTextField;
 @property (nonatomic) IBOutlet UITextField *passwordTextField;
@@ -28,7 +30,7 @@
 @property (nonatomic) IBOutlet UIScrollView *registerScrollView;
 
 @property (nonatomic, assign) id<RegisterProtocol> delegate;
-
+-(void)loginaction:(NSString *)username;
 - (IBAction)registerAction:(id)sender;
 - (IBAction)cancelAction:(id)sender;
 @end

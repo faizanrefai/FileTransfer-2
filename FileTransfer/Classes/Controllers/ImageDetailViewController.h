@@ -14,4 +14,6 @@
 @property (nonatomic, strong) IBOutlet UIImageView *imageView;
 
 - (id)initWithImage:(UIImage *)image;
+
+- (IBAction)backAction:(id)sender;
 @end

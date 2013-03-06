@@ -17,16 +17,16 @@
     NSFetchedResultsController *fileTransferMessageFetchedResultsController;
     BOOL keyboardVisible;
     NSMutableArray *turnSockets;
-    
+    IBOutlet UILabel *lblnav;
     NSMutableArray *messages;
 }
-
+@property (nonatomic) NSString *lbl;
 @property (nonatomic) XMPPUserCoreDataStorageObject *user;
 @property (nonatomic) IBOutlet UITableView *mainTable;
 @property (nonatomic) IBOutlet UITextField *inputTextField;
 @property (nonatomic) IBOutlet UIButton *sendButton;
 @property (nonatomic) IBOutlet UIView *inputTextView;
-
+- (IBAction)sendFileAction:(id)sender;
 - (IBAction)sendAction:(id)sender;
 - (IBAction)backAction:(id)sender;
 @end

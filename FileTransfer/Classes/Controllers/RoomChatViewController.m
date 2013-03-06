@@ -23,7 +23,7 @@
 #import "EnumTypes.h"
 #import "MUCFileTransferController.h"
 #import "MUCFileTransferTask.h"
-
+#import "ImageDetailViewController.h"
 #import <RestKit/RestKit.h>
 
 @interface RoomChatViewController ()
@@ -233,7 +233,23 @@
 
 #pragma mark - UITableView delegate
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
-
+    NSManagedObject *message = [[[self messageFetchedResultsController] fetchedObjects] objectAtIndex:indexPath.row];
+    if ([message isKindOfClass:[XMPPRoomFileTransferMessageCoreDataStorageObject class]]) {
+        
+        NSString *path = [DirectoryHelper savedFilesDirectory];
+        if ([[[(XMPPRoomFileTransferMessageCoreDataStorageObject *)message jid] resource] isEqualToString:[XMPPUtil myUsername]]) {
+            path = [DirectoryHelper sentFilesDirectory];
+        }
+        
+        path = [path stringByAppendingPathComponent:fileName];
+        NSData *data = nil;
+        if ([DirectoryHelper fileExistAtPath:path isDir:NO]) {
+            data = [NSData dataWithContentsOfURL:[NSURL fileURLWithPath:path]];
+            UIImage *image = [UIImage imageWithData:data];
+            ImageDetailViewController *imageDetailViewController = [[ImageDetailViewController alloc] initWithImage:image];
+            [[self navigationController] pushViewController:imageDetailViewController animated:YES];
+        }
+    }
 }
 
 
